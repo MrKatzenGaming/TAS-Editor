@@ -9,16 +9,19 @@ import java.io.IOException;
 public enum Format {
 
 	STAS,
-	nxTAS;
+	nxTAS,
+	TSVTAS;
 
 	public static Script read(File file, Format format) throws IOException, CorruptedScriptException {
 		if(format == nxTAS) return NXTas.read(file);
 		else if(format == STAS) return STas.read(file);
+		else if(format == TSVTAS) return TSVTas.read(file);
 		else throw new IllegalStateException("Unexpected value: " + format);
 	}
 	public static void write(Script script, File file, Format format) throws IOException {
 		if(format == nxTAS) NXTas.write(script, file);
 		else if(format == STAS) STas.write(script, file);
+		else if(format == TSVTAS) TSVTas.write(script, file);
 		else throw new IllegalStateException("Unexpected value: " + format);
 	}
 

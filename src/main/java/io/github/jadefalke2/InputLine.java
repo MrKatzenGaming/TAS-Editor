@@ -94,6 +94,10 @@ public class InputLine {
 		this.stickR = stickR;
 	}
 
+	public String getButtonsString() {
+		return buttons.isEmpty() ? "" : buttons.stream().map(Enum::name).collect(Collectors.joining("\t"));
+	}
+
 
 	// Overwriting methods
 

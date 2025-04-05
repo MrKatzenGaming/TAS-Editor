@@ -26,6 +26,8 @@ public enum Button {
 	KEY_LSTICK,
 	KEY_RSTICK;
 
+
+
 	@Override
 	public String toString(){
 		return name().replace("KEY_","");

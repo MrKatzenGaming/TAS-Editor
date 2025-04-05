@@ -34,9 +34,11 @@ public class Settings {
 	public final ObservableProperty<Integer> practiceScenarioNo;
 	public final ObservableProperty<String> practiceEntranceName;
 
-	public final ObservableProperty<String> practiceScriptName;
-	public final ObservableProperty<String> converterPath;
-	public final ObservableProperty<File> tsvPath;
+	public final ObservableProperty<Float> startPositionX;
+	public final ObservableProperty<Float> startPositionY;
+	public final ObservableProperty<Float> startPositionZ;
+
+	public final ObservableProperty<File> tsvtaspath;
 
 
 	private final Preferences backingPrefs;
@@ -59,9 +61,11 @@ public class Settings {
 		practiceScenarioNo = new ObservableProperty<>(Integer.parseInt(prefs.get("practiceScenario", "1")));
 		practiceEntranceName = new ObservableProperty<>(prefs.get("practiceEntrance", "start"));
 
-		practiceScriptName = new ObservableProperty<>(prefs.get("practiceScriptName", "script"));
-		converterPath = new ObservableProperty<>(prefs.get("converterPath", ""));
-		tsvPath = new ObservableProperty<>(new File(prefs.get("tsvPath", System.getProperty("user.home"))));
+		startPositionX = new ObservableProperty<>(Float.parseFloat(prefs.get("startPositionX", "0")));
+		startPositionY = new ObservableProperty<>(Float.parseFloat(prefs.get("startPositionY", "0")));
+		startPositionZ = new ObservableProperty<>(Float.parseFloat(prefs.get("startPositionZ", "0")));
+
+		tsvtaspath = new ObservableProperty<>(new File(prefs.get("tsvtaspath", System.getProperty("user.dir"))));
 
 	}
 
@@ -79,9 +83,10 @@ public class Settings {
 		backingPrefs.put("practiceStage", practiceStageName.get() + "");
 		backingPrefs.put("practiceScenario", practiceScenarioNo.get() + "");
 		backingPrefs.put("practiceEntrance", practiceEntranceName.get() + "");
-		backingPrefs.put("practiceScriptName", practiceScriptName.get() + "");
-		backingPrefs.put("converterPath", converterPath.get() + "");
-		backingPrefs.put("tsvPath", tsvPath.get() + "");
+		backingPrefs.put("startPositionX", startPositionX.get() + "");
+		backingPrefs.put("startPositionY", startPositionY.get() + "");
+		backingPrefs.put("startPositionZ", startPositionZ.get() + "");
+		backingPrefs.put("tsvtaspath", tsvtaspath.get() + "");
 
 		backingPrefs.flush();
 	}

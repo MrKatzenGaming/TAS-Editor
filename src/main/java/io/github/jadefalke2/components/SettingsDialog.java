@@ -52,7 +52,7 @@ public class SettingsDialog extends JDialog {
 		addRadioButtonSetting("Redo-Keybind: ", prefs.redoKeybind.get(), prefs.redoKeybind::set, Settings.RedoKeybind.values(), new String[]{"CTRL+SHIFT+Z", "CTRL+Y"}, Settings.RedoKeybind::valueOf, mainPanel, c);
 		c.gridy++;
 
-		addRadioButtonSetting("Default script format: ", prefs.defaultScriptFormat.get(), prefs.defaultScriptFormat::set, Format.values(), new String[]{"STAS (.stas)", "nxTAS (.txt)"}, Format::valueOf, mainPanel, c);
+		addRadioButtonSetting("Default script format: ", prefs.defaultScriptFormat.get(), prefs.defaultScriptFormat::set, Format.values(), new String[]{"STAS (.stas)", "nxTAS (.txt)", "TSVTas (.tsv)"}, Format::valueOf, mainPanel, c);
 		c.gridy++;
 
 		addTextFieldSetting("Author name: ", prefs.authorName.get(), prefs.authorName::set, mainPanel, c);
@@ -73,14 +73,15 @@ public class SettingsDialog extends JDialog {
 		addTextFieldSetting("Entrance", prefs.practiceEntranceName.get(), prefs.practiceEntranceName::set, mainPanel, c);
 		c.gridy++;
 
-		addTextFieldSetting("Script Name", prefs.practiceScriptName.get(), prefs.practiceScriptName::set, mainPanel, c);
+		addTextFieldSetting("Start Position X", prefs.startPositionX.get().toString(), s -> prefs.startPositionX.set(Float.parseFloat(s.isEmpty()? String.valueOf(0.0) :s)), mainPanel, c);
 		c.gridy++;
-
-		addTextFieldSetting("Converter Path", prefs.converterPath.get(), prefs.converterPath::set, mainPanel, c);
+		addTextFieldSetting("Start Position Y", prefs.startPositionY.get().toString(), s -> prefs.startPositionY.set(Float.parseFloat(s.isEmpty()? String.valueOf(0.0) :s)), mainPanel, c);
 		c.gridy++;
-
-		addFileSelectionSetting("Tsv Path", prefs.tsvPath.get(), prefs.tsvPath::set, mainPanel, c);
+		addTextFieldSetting("Start Position Z", prefs.startPositionZ.get().toString(), s -> prefs.startPositionZ.set(Float.parseFloat(s.isEmpty()? String.valueOf(0.0) :s)), mainPanel, c);
 		c.gridy++;
+		addSeperator(mainPanel, c);
+		c.gridy++;
+		addFileSelectionSetting("TSV-TAS Path", prefs.tsvtaspath.get(), prefs.tsvtaspath::set, mainPanel, c);
 
 		add(mainPanel);
 		pack();

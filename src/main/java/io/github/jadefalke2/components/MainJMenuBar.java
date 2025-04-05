@@ -3,7 +3,6 @@ package io.github.jadefalke2.components;
 import io.github.jadefalke2.script.Format;
 import io.github.jadefalke2.util.ObservableProperty;
 import io.github.jadefalke2.TAS;
-import io.github.jadefalke2.connectivity.practice.ServerConnector;
 import io.github.jadefalke2.util.Settings;
 
 import javax.swing.*;
@@ -36,7 +35,7 @@ public class MainJMenuBar extends JMenuBar {
 		JMenu viewMenu = createViewMenu();
 		add(viewMenu);
 
-		JMenu runMenu = createRunMenu(mainEditorWindow.getParentTAS(), mainEditorWindow.getParentTAS().getPracticeServer());
+		JMenu runMenu = createRunMenu(mainEditorWindow.getParentTAS());
 		add(runMenu);
 
 		JMenu helpMenu = createHelpMenu();
@@ -188,23 +187,8 @@ public class MainJMenuBar extends JMenuBar {
 		return viewJMenu;
 	}
 
-	private JMenu createRunMenu(TAS parent, ServerConnector server) {
+	private JMenu createRunMenu(TAS parent) {
 		JMenu runJMenu = new JMenu("Run");
-
-		JCheckBoxMenuItem enablePracticeMod = new JCheckBoxMenuItem("Enable Practice-Mod Server", server.isRunning());
-		runJMenu.add(enablePracticeMod);
-
-		runJMenu.addSeparator();
-
-		JMenuItem runPracticeMod = runJMenu.add("Run on Practice-Mod");
-		runPracticeMod.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F6, 0));
-		runPracticeMod.addActionListener(e -> parent.runScriptPracticeMod());
-		runPracticeMod.setEnabled(false);
-
-		enablePracticeMod.addItemListener(e -> {
-			server.setRunning(enablePracticeMod.getState());
-			runPracticeMod.setEnabled(server.isRunning());
-		});
 
 		JMenuItem convertAndSend = runJMenu.add("Convert and Send");
 		convertAndSend.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0));

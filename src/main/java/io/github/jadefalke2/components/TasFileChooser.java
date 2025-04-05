@@ -15,6 +15,7 @@ public class TasFileChooser extends JFileChooser {
 
 	private static final FileNameExtensionFilter sTAS = new FileNameExtensionFilter("SwitchTAS files (.stas)", "stas");
 	private static final FileNameExtensionFilter nxTAS = new FileNameExtensionFilter("nxTAS files (.txt)", "txt");
+	private static final FileNameExtensionFilter TSVTAS = new FileNameExtensionFilter("TSVTas files (.tsv)", "tsv");
 
 	private final File defaultDir;
 	/**
@@ -36,7 +37,12 @@ public class TasFileChooser extends JFileChooser {
 		setCurrentDirectory(defaultDir);
 		addChoosableFileFilter(sTAS);
 		addChoosableFileFilter(nxTAS);
-		setFileFilter(Settings.INSTANCE.defaultScriptFormat.get() == Format.STAS ? sTAS : nxTAS);
+		addChoosableFileFilter(TSVTAS);
+		switch (Settings.INSTANCE.defaultScriptFormat.get()) {
+			case STAS -> setFileFilter(sTAS);
+			case nxTAS -> setFileFilter(nxTAS);
+			case TSVTAS -> setFileFilter(TSVTAS);
+		}
 		int option = openFile ? showOpenDialog(null) : showSaveDialog(null);
 
 		if (option == JFileChooser.APPROVE_OPTION) {
@@ -49,6 +55,7 @@ public class TasFileChooser extends JFileChooser {
 	public Format getFormat() {
 		if(getFileFilter() == sTAS) return Format.STAS;
 		else if(getFileFilter() == nxTAS) return Format.nxTAS;
+		else if (getFileFilter() == TSVTAS) return Format.TSVTAS;
 		else throw new IllegalStateException("Unexpected value: " + getFileFilter());
 	}
 
@@ -64,6 +71,12 @@ public class TasFileChooser extends JFileChooser {
 		} else if(getFileFilter() == nxTAS) {
 			if(!file.getAbsolutePath().endsWith(".txt")) {
 				file = new File(file.getAbsolutePath() + ".txt");
+				setSelectedFile(file);
+			}
+		}
+		else if(getFileFilter() == TSVTAS) {
+			if(!file.getAbsolutePath().endsWith(".tsv")) {
+				file = new File(file.getAbsolutePath() + ".tsv");
 				setSelectedFile(file);
 			}
 		}

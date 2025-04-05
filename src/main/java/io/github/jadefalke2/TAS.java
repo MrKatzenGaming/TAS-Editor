@@ -3,12 +3,13 @@ package io.github.jadefalke2;
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 import io.github.jadefalke2.components.MainEditorWindow;
-import io.github.jadefalke2.connectivity.practice.ServerConnector;
+import io.github.jadefalke2.util.CorruptedScriptException;
 import io.github.jadefalke2.util.Logger;
 import io.github.jadefalke2.util.Settings;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,8 +17,6 @@ import java.util.Arrays;
 public class TAS {
 
 	private MainEditorWindow mainEditorWindow;
-
-	private ServerConnector practiceServer;
 
 	public static void main(String[] args) {
 		new TAS();
@@ -38,7 +37,6 @@ public class TAS {
 		setLookAndFeel(Settings.INSTANCE.darkTheme.get());
 		Settings.INSTANCE.darkTheme.attachListener(this::setLookAndFeel);
 
-		practiceServer = new ServerConnector();
 
 		mainEditorWindow = new MainEditorWindow(this);
 		mainEditorWindow.openScript(Script.getEmptyScript(10));
@@ -64,7 +62,6 @@ public class TAS {
 
 	public void exit() {
 		Logger.log("exiting program");
-		practiceServer.setRunning(false);
 		mainEditorWindow.dispose();
 	}
 
@@ -72,49 +69,36 @@ public class TAS {
 		Logger.log("opening new window");
 		new TAS(); // TODO not the right way, as for example settings won't sync properly
 	}
-	public void runScriptPracticeMod() {
-		try {
-			practiceServer.runScript(mainEditorWindow.getActiveScriptTab().getScript(), new ServerConnector.GoConfig(
-				Settings.INSTANCE.practiceStageName.get(),
-				Settings.INSTANCE.practiceScenarioNo.get(),
-				Settings.INSTANCE.practiceEntranceName.get()
-			));
-		} catch (IOException | InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
 
 	public boolean closeAllScripts(){
 		return mainEditorWindow.closeAllScripts();
-	}
-
-	public ServerConnector getPracticeServer() {
-		return practiceServer;
 	}
 
 	public void convertAndSend() {
 		Runtime rt = Runtime.getRuntime();
 		Settings settings = Settings.INSTANCE;
 		Script script = mainEditorWindow.getActiveScriptTab().getScript();
-		String[] converterPathArr = settings.converterPath.get().split("\\\\");
 		try {
 			script.saveFile();
-			rt.exec(new String[]{
-				"cmd.exe","/c","start","/D",
-				"\"" +String.join("\\", Arrays.copyOf(converterPathArr, converterPathArr.length - 1)) + "\"",
+			Process p = rt.exec(new String[]{
+				"cmd.exe", "/c", "start", "/wait", "/D",
+				"\"" + String.join("\\", settings.tsvtaspath.get().getPath()) + "\"",
 				"py",
-				"\"" + settings.converterPath.get() + "\"",
-				"\"" +script.getPath() + "\"",
-				settings.practiceScriptName.get(),
-				settings.tsvPath.get().toString(),
-				settings.practiceStageName.get(),
-				settings.practiceEntranceName.get(),
-				settings.practiceScenarioNo.get().toString()
+				"tsv-tas.py",
+				"-f",
+				"\"" + script.getPath() + "\"",
+				script.getName().replace(".tsv", "")
 			});
+			p.waitFor();
+			System.out.println(settings.tsvtaspath.get().getPath() + "\\" + script.getName().replace(".tsv", ""));
+			File file = new File(settings.tsvtaspath.get().getPath() + "\\" + script.getName().replace(".tsv", ""));
+			file.delete();
+
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
 		}
 	}
 }

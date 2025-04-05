@@ -5,14 +5,17 @@ import io.github.jadefalke2.Script;
 import io.github.jadefalke2.actions.Action;
 import io.github.jadefalke2.actions.InsertEmptyLineAction;
 import io.github.jadefalke2.actions.LineAction;
+import io.github.jadefalke2.script.NXTas;
 import io.github.jadefalke2.util.Button;
 import io.github.jadefalke2.util.CorruptedScriptException;
 import io.github.jadefalke2.util.InputDrawMouseListener;
+import io.github.jadefalke2.util.ScriptTableModel;
 
 import javax.swing.AbstractAction;
 import javax.swing.JTable;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
+import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.Font;
@@ -22,6 +25,8 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -32,12 +37,13 @@ public class PianoRoll extends JTable {
 	private final ScriptTab scriptTab;
 
 	// table model
-	private final DefaultTableModel model = new DefaultTableModel();
+	private ScriptTableModel model;
 
 
 	public PianoRoll (Script script, ScriptTab scriptTab) {
 		this.script = script;
 		this.scriptTab = scriptTab;
+		this.model = new ScriptTableModel(script);
 
 		DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
 		centerRenderer.setHorizontalAlignment( SwingConstants.CENTER );
@@ -50,18 +56,27 @@ public class PianoRoll extends JTable {
 		setFillsViewportHeight(true);
 		setFont(new Font("Arial", Font.PLAIN, 15));
 
-		getTableHeader().setResizingAllowed(false);
-		getTableHeader().setReorderingAllowed(false);
+		getTableHeader().setResizingAllowed(true);
+		getTableHeader().setReorderingAllowed(true);
 		getTableHeader().setDefaultRenderer(centerRenderer);
 
-		// add all the column's corresponding with their names
-		model.addColumn("Frame");
-		model.addColumn("L-Stick");
-		model.addColumn("R-Stick");
+		getTableHeader().addMouseListener(new MouseListener() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (e.getButton() == MouseEvent.BUTTON3) {
+					new ColumnRightClickMenu(PianoRoll.this).openPopUpMenu(e.getPoint(), PianoRoll.this);
+				}
+			}
+			@Override
+			public void mousePressed(MouseEvent e) {}
+			@Override
+			public void mouseReleased(MouseEvent e) {}
+			@Override
+			public void mouseEntered(MouseEvent e) {}
+			@Override
+			public void mouseExited(MouseEvent e) {}
+		});
 
-		for (Button button : Button.values()) {
-			model.addColumn(button.toString());
-		}
 
 		//Center all columns
 		for (int i = 0; i < getColumnCount(); i++){
@@ -141,7 +156,7 @@ public class PianoRoll extends JTable {
 	 * returns the table model
 	 * @return table model
 	 */
-	public DefaultTableModel getModel (){
+	public AbstractTableModel getModel (){
 		return model;
 	}
 
@@ -151,7 +166,7 @@ public class PianoRoll extends JTable {
 	 */
 	public void setScript (Script script){
 		this.script = script;
-		script.setTable(model);
+		model = new ScriptTableModel(script);
 	}
 
 	public Script getScript() {
@@ -197,7 +212,7 @@ public class PianoRoll extends JTable {
 		String clipContent = (String) Toolkit.getDefaultToolkit().getSystemClipboard().getContents(this).getTransferData(DataFlavor.stringFlavor);
 		return Arrays.stream(clipContent.split("[\r\n]+")).map(line -> {
 			try {
-				return new InputLine(line);
+				return NXTas.readLine(line);
 			} catch(CorruptedScriptException e){
 				System.out.println("invalid clipboard content: " + line); //TODO proper error handling here
 				return null;

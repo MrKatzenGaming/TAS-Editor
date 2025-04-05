@@ -5,6 +5,7 @@ import io.github.jadefalke2.util.Button;
 import io.github.jadefalke2.util.CorruptedScriptException;
 
 import java.util.EnumSet;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class InputLine {
@@ -23,30 +24,10 @@ public class InputLine {
 		stickR = new StickPosition(0,0);
 	}
 
-	public InputLine(String full) throws CorruptedScriptException {
-		if (full.isEmpty()){
-			throw new CorruptedScriptException("Empty InputLine", -1);
-		}
-
-		int frame = 0;
-		try {
-			String[] components = full.split(" ");
-
-			frame = Integer.parseInt(components[0]);
-			String buttons = components[1];
-			String[] buttonsPressed = buttons.split(";");
-
-			for (String s : buttonsPressed) {
-				if(!s.equals("NONE")) {
-					this.buttons.add(Button.valueOf(s));
-				}
-			}
-
-			stickL = new StickPosition(components[2]);
-			stickR = new StickPosition(components[3]);
-		} catch (Exception e) {
-			throw new CorruptedScriptException("Script corrupted", frame, e);
-		}
+	public InputLine(EnumSet<Button> buttons, StickPosition stickL, StickPosition stickR) {
+		this.buttons = buttons;
+		this.stickL = stickL;
+		this.stickR = stickR;
 	}
 
 	/**
@@ -127,5 +108,14 @@ public class InputLine {
 		newLine.stickL = stickL.clone();
 		newLine.stickR = stickR.clone();
 		return newLine;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		InputLine inputLine = (InputLine) o;
+		return Objects.equals(buttons, inputLine.buttons) && Objects.equals(stickL, inputLine.stickL) &&
+			   Objects.equals(stickR, inputLine.stickR);
 	}
 }

@@ -7,6 +7,7 @@ import io.github.jadefalke2.util.*;
 
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
+import javax.xml.transform.sax.SAXResult;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -251,6 +252,8 @@ public class Script {
 	public boolean isDirty() {
 		return dirty;
 	}
+
+	public String getPath() {return file == null ? "unsaved" : file.getAbsolutePath();}
 
 	private void setDirty(boolean dirty) {
 		this.dirty = dirty;

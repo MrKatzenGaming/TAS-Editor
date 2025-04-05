@@ -4,6 +4,7 @@ import io.github.jadefalke2.InputLine;
 import io.github.jadefalke2.Script;
 
 import java.util.Arrays;
+import java.util.stream.IntStream;
 
 public class LineAction implements Action{
 
@@ -48,7 +49,7 @@ public class LineAction implements Action{
 		switch (type){
 			case CLONE:                       //fallthrough to INSERT
 			case INSERT: deleteRows(true); break;
-			case DELETE: insertRows(previousLines, rows[0]); break;
+			case DELETE: insertRows(previousLines, rows); break;
 			case REPLACE: revertReplaceRows(); break;
 		}
 	}
@@ -70,7 +71,7 @@ public class LineAction implements Action{
 		if(rows.length < replacement.length) //missing frames -> add emptys that there are enough to replace
 			insertEmptyRows(replacement.length - rows.length);
 		if(rows.length > replacement.length) //too many frames -> remove redundant lines
-			deleteRows(false, Arrays.copyOfRange(rows, replacement.length, rows.length));
+			deleteRows(Arrays.copyOfRange(rows, replacement.length, rows.length));
 
 		for(int i=0;i<replacement.length;i++){
 			int row = i < rows.length ? rows[i] : rows[rows.length-1] + (i - rows.length) + 1;
@@ -93,11 +94,12 @@ public class LineAction implements Action{
 	}
 
 	private void deleteRows(boolean undo){
-		deleteRows(undo, rows);
+		int[] toRemove = undo ? IntStream.range(rows[rows.length-1]+1, rows[rows.length-1]+1+replacementLines.length).toArray() : rows;
+		deleteRows(toRemove);
 	}
-	private void deleteRows(boolean undo, int[] rows){
+	private void deleteRows(int[] rows){
 		for (int i = rows.length - 1; i >= 0; i--){
-			int row = undo ? rows[i]+rows.length : rows[i];
+			int row = rows[i];
 			script.removeRow(row);
 		}
 	}
@@ -113,10 +115,12 @@ public class LineAction implements Action{
 		insertRows(tmpLines, rows[rows.length-1]+1);
 	}
 
-	private void insertRows (InputLine[] inputLines, int index){
+	private void insertRows (InputLine[] inputLines, int index) {
+		insertRows(inputLines, IntStream.range(index, index+inputLines.length).toArray());
+	}
+	private void insertRows (InputLine[] inputLines, int[] indices){
 		for (int i = 0; i < inputLines.length; i++){
-			int actualIndex = index + i;
-			script.insertRow(actualIndex, inputLines[i]);
+			script.insertRow(indices[i], inputLines[i]);
 		}
 	}
 

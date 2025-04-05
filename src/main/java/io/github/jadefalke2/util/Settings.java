@@ -31,6 +31,10 @@ public class Settings {
 	public final ObservableProperty<Integer> practiceScenarioNo;
 	public final ObservableProperty<String> practiceEntranceName;
 
+	public final ObservableProperty<String> practiceScriptName;
+	public final ObservableProperty<String> converterPath;
+	public final ObservableProperty<File> tsvPath;
+
 
 	private final Preferences backingPrefs;
 
@@ -49,6 +53,11 @@ public class Settings {
 		practiceStageName = new ObservableProperty<>(prefs.get("practiceStage", "CityWorldHomeStage"));
 		practiceScenarioNo = new ObservableProperty<>(Integer.parseInt(prefs.get("practiceScenario", "1")));
 		practiceEntranceName = new ObservableProperty<>(prefs.get("practiceEntrance", "start"));
+
+		practiceScriptName = new ObservableProperty<>(prefs.get("practiceScriptName", "script"));
+		converterPath = new ObservableProperty<>(prefs.get("converterPath", ""));
+		tsvPath = new ObservableProperty<>(new File(prefs.get("tsvPath", System.getProperty("user.home"))));
+
 	}
 
 	public void storeSettings() throws BackingStoreException {
@@ -63,6 +72,9 @@ public class Settings {
 		backingPrefs.put("practiceStage", practiceStageName.get() + "");
 		backingPrefs.put("practiceScenario", practiceScenarioNo.get() + "");
 		backingPrefs.put("practiceEntrance", practiceEntranceName.get() + "");
+		backingPrefs.put("practiceScriptName", practiceScriptName.get() + "");
+		backingPrefs.put("converterPath", converterPath.get() + "");
+		backingPrefs.put("tsvPath", tsvPath.get() + "");
 
 		backingPrefs.flush();
 	}

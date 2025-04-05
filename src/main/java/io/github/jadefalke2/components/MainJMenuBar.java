@@ -194,7 +194,7 @@ public class MainJMenuBar extends JMenuBar {
 		runJMenu.addSeparator();
 
 		JMenuItem runPracticeMod = runJMenu.add("Run on Practice-Mod");
-		runPracticeMod.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0));
+		runPracticeMod.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F6, 0));
 		runPracticeMod.addActionListener(e -> parent.runScriptPracticeMod());
 		runPracticeMod.setEnabled(false);
 
@@ -202,6 +202,10 @@ public class MainJMenuBar extends JMenuBar {
 			server.setRunning(enablePracticeMod.getState());
 			runPracticeMod.setEnabled(server.isRunning());
 		});
+
+		JMenuItem convertAndSend = runJMenu.add("Convert and Send");
+		convertAndSend.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0));
+		convertAndSend.addActionListener(e -> parent.convertAndSend());
 
 		return runJMenu;
 	}

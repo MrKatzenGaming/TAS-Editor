@@ -66,6 +66,15 @@ public class SettingsDialog extends JDialog {
 		addTextFieldSetting("Entrance", prefs.practiceEntranceName.get(), prefs.practiceEntranceName::set, mainPanel, c);
 		c.gridy++;
 
+		addTextFieldSetting("Script Name", prefs.practiceScriptName.get(), prefs.practiceScriptName::set, mainPanel, c);
+		c.gridy++;
+
+		addTextFieldSetting("Converter Path", prefs.converterPath.get(), prefs.converterPath::set, mainPanel, c);
+		c.gridy++;
+
+		addFileSelectionSetting("Tsv Path", prefs.tsvPath.get(), prefs.tsvPath::set, mainPanel, c);
+		c.gridy++;
+
 		add(mainPanel);
 		pack();
 		setLocationRelativeTo(owner);

@@ -10,6 +10,8 @@ import io.github.jadefalke2.util.Settings;
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class TAS {
 
@@ -88,5 +90,31 @@ public class TAS {
 
 	public ServerConnector getPracticeServer() {
 		return practiceServer;
+	}
+
+	public void convertAndSend() {
+		Runtime rt = Runtime.getRuntime();
+		Settings settings = Settings.INSTANCE;
+		Script script = mainEditorWindow.getActiveScriptTab().getScript();
+		String[] converterPathArr = settings.converterPath.get().split("\\\\");
+		try {
+			script.saveFile();
+			rt.exec(new String[]{
+				"cmd.exe","/c","start","/D",
+				"\"" +String.join("\\", Arrays.copyOf(converterPathArr, converterPathArr.length - 1)) + "\"",
+				"py",
+				"\"" + settings.converterPath.get() + "\"",
+				"\"" +script.getPath() + "\"",
+				settings.practiceScriptName.get(),
+				settings.tsvPath.get().toString(),
+				settings.practiceStageName.get(),
+				settings.practiceEntranceName.get(),
+				settings.practiceScenarioNo.get().toString()
+			});
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

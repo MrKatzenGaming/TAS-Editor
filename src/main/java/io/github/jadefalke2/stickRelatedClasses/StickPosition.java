@@ -9,6 +9,8 @@ public class StickPosition {
 	// Range of y: -32767;32767
 	private final int x;
 	private final int y;
+	private double radius;
+	private double theta;
 
 	// The max x/y range0
 	public final static int MAX_SIZE = 32767;
@@ -23,11 +25,15 @@ public class StickPosition {
 		if(radius <= 1) {
 			this.x = x;
 			this.y = y;
+			this.radius = radius;
+			this.theta = calcTheta(x, y);
 		} else {
 			radius = Math.min(radius, 1);
 			double theta = calcTheta(x, y);
 			this.x = (int) calcX(theta, radius);
 			this.y = (int) calcY(theta, radius);
+			this.radius = radius;
+			this.theta = theta;
 		}
 	}
 
@@ -41,13 +47,15 @@ public class StickPosition {
 			(int) calcX(theta, radius),
 			(int) calcY(theta, radius)
 		);
+		this.radius = radius;
+		this.theta = theta;
 	}
 
 	private static double calcX(double theta, double radius) {
 		return (radius * MAX_SIZE) * Math.cos(theta);
 	}
 	private static double calcY(double theta, double radius) {
-		return (radius * MAX_SIZE) * Math.sin(theta);
+		return (radius * MAX_SIZE) * Math.sin(theta%360);
 	}
 
 	/**
@@ -87,7 +95,7 @@ public class StickPosition {
 	 * @return the angle of the stick (0-2π)
 	 */
 	public double getTheta() {
-		return calcTheta(x, y);
+		return theta;
 	}
 	private static double calcTheta(int x, int y) {
 		return ((Math.atan2(y,x) + (2*Math.PI)) % (2*Math.PI));
@@ -97,7 +105,7 @@ public class StickPosition {
 	 * @return the radius of the stick (distance from middle)
 	 */
 	public double getRadius() {
-		return calcRadius(x, y);
+		return radius;
 	}
 	private static double calcRadius(int x, int y) {
 		return Math.sqrt(Math.pow(x / (double) MAX_SIZE, 2) + Math.pow(y / (double) MAX_SIZE, 2));

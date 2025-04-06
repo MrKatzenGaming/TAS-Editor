@@ -6,10 +6,7 @@ import io.github.jadefalke2.stickRelatedClasses.StickPosition;
 import io.github.jadefalke2.util.*;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.List;
+import java.util.*;
 
 public class TSVTas {
 
@@ -122,11 +119,31 @@ public class TSVTas {
 
     private static String convertButtons(String buttons) {
         StringBuilder sb = new StringBuilder();
+		if (buttons.contains("KEY_L") && buttons.contains("KEY_DUP")) {
+			buttons = buttons.replace("KEY_L", "KEY_LUP");
+			buttons = buttons.replace("KEY_DUP", "");
+		}
+		if (buttons.contains("KEY_L") && buttons.contains("KEY_DDOWN")) {
+			buttons = buttons.replace("KEY_L", "KEY_LDOWN");
+			buttons = buttons.replace("KEY_DDOWN", "");
+		}
+		if (buttons.contains("KEY_L") && buttons.contains("KEY_DLEFT")) {
+			buttons = buttons.replace("KEY_L", "KEY_LLEFT");
+			buttons = buttons.replace("KEY_DLEFT", "");
+		}
+		if (buttons.contains("KEY_L") && buttons.contains("KEY_DRIGHT")) {
+			buttons = buttons.replace("KEY_L", "KEY_LRIGHT");
+			buttons = buttons.replace("KEY_DRIGHT", "");
+		}
         for (String button : buttons.split("\t")) {
             if (!button.isEmpty()) {
 				button = button.replace("KEY_", "");
                 switch (button) {
-					case "L" -> button = "m-d";
+					case "L" -> button = "m";
+					case "LUP" -> button = "m-u";
+					case "LDOWN" -> button = "m-d";
+					case "LLEFT" -> button = "m-l";
+					case "LRIGHT" -> button = "m-r";
 					case "DUP" -> button = "m-uu";
 					case "DDOWN" -> button = "m-dd";
 					case "DLEFT" -> button = "m-ll";
@@ -254,7 +271,7 @@ public class TSVTas {
 
 		for (int i = 1; i <= numButtons; i++) {
 			if (!components[i].isEmpty()) {
-				curLine.buttons.add(readCovertButton(components[i]));
+				Collections.addAll(curLine.buttons, readCovertButton(components[i]));
 			}
 		}
 		if (sticklidx != -1) {
@@ -268,55 +285,67 @@ public class TSVTas {
 		return curLine;
 	}
 
-	private static Button readCovertButton(String button) {
+	private static Button[] readCovertButton(String button) {
 		switch (button.toLowerCase()) {
+			case "m" -> {
+				return new Button[]{Button.KEY_L};
+			}
+			case "m-u" -> {
+				return new Button[]{Button.KEY_L, Button.KEY_DUP};
+			}
 			case "m-d" -> {
-				return Button.KEY_L;
+				return new Button[]{Button.KEY_L, Button.KEY_DDOWN};
+			}
+			case "m-l" -> {
+				return new Button[]{Button.KEY_L, Button.KEY_DLEFT};
+			}
+			case "m-r" -> {
+				return new Button[]{Button.KEY_L, Button.KEY_DRIGHT};
 			}
 			case "m-uu" -> {
-				return Button.KEY_DUP;
+				return new Button[]{Button.KEY_DUP};
 			}
 			case "m-dd" -> {
-				return Button.KEY_DDOWN;
+				return new Button[]{Button.KEY_DDOWN};
 			}
 			case "m-ll" -> {
-				return Button.KEY_DLEFT;
+				return new Button[]{Button.KEY_DLEFT};
 			}
 			case "m-rr" -> {
-				return Button.KEY_DRIGHT;
+				return new Button[]{Button.KEY_DRIGHT};
 			}
 			case "r" -> {
-				return Button.KEY_R;
+				return new Button[]{Button.KEY_R};
 			}
 			case "a" -> {
-				return Button.KEY_A;
+				return new Button[]{Button.KEY_A};
 			}
 			case "b" -> {
-				return Button.KEY_B;
+				return new Button[]{Button.KEY_B};
 			}
 			case "x" -> {
-				return Button.KEY_X;
+				return new Button[]{Button.KEY_X};
 			}
 			case "y" -> {
-				return Button.KEY_Y;
+				return new Button[]{Button.KEY_Y};
 			}
 			case "zl" -> {
-				return Button.KEY_ZL;
+				return new Button[]{Button.KEY_ZL};
 			}
 			case "zr" -> {
-				return Button.KEY_ZR;
+				return new Button[]{Button.KEY_ZR};
 			}
 			case "ls" -> {
-				return Button.KEY_LSTICK;
+				return new Button[]{Button.KEY_LSTICK};
 			}
 			case "rs" -> {
-				return Button.KEY_RSTICK;
+				return new Button[]{Button.KEY_RSTICK};
 			}
 			case "+" -> {
-				return Button.KEY_PLUS;
+				return new Button[]{Button.KEY_PLUS};
 			}
 			case "-" -> {
-				return Button.KEY_MINUS;
+				return new Button[]{Button.KEY_MINUS};
 			}
 		}
 		throw new IllegalArgumentException("Unknown button: " + button);

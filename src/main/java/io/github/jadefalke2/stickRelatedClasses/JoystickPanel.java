@@ -44,7 +44,7 @@ public class JoystickPanel extends JPanel {
 	public JoystickPanel(ActionListener smoothTransitionListener, String descriptor) {
 
 		// setting global vars
-		stickPosition = new StickPosition(0,0);
+		stickPosition = new StickPosition(0d,0d);
 		joystick = new Joystick();
 		joystick.setThumbPos(stickPosition, false);
 
@@ -131,7 +131,7 @@ public class JoystickPanel extends JPanel {
 
 		centerButton = new JButton("center");
 		centerButton.addActionListener(e -> {
-			joystick.setThumbPos(new StickPosition(0, 0), false);
+			joystick.setThumbPos(new StickPosition(0d, 0d), false);
 			updateStickPosition(true);
 		});
 
@@ -214,7 +214,7 @@ public class JoystickPanel extends JPanel {
 
 	public void setAllEnabled(boolean enable) {
 		if(!enable){
-			setStickPosition(new StickPosition(0, 0));
+			setStickPosition(new StickPosition(0d, 0d));
 			setStickPositions(new StickPosition[0]);
 		}
 

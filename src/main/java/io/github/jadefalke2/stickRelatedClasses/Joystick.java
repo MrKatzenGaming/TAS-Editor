@@ -64,7 +64,7 @@ public class Joystick extends JPanel {
 					return null;
 
 				if (angle == -2) {
-					setThumbPos(new StickPosition(0, 0), true);
+					setThumbPos(new StickPosition(0d, 0d), true);
 					return null;
 				}
 
@@ -85,7 +85,7 @@ public class Joystick extends JPanel {
 		addMouseListener(mouseAdapter);
 		addKeyListener(keyListener);
 
-		setThumbPos(new StickPosition(0, 0), false);
+		setThumbPos(new StickPosition(0d, 0d), false);
 	}
 
 	private static int numPadToAngle(int keyCode){
@@ -208,7 +208,7 @@ public class Joystick extends JPanel {
 		super.setEnabled(enabled);
 
 		if(!isEnabled())
-			setThumbPos(new StickPosition(0, 0), false);
+			setThumbPos(new StickPosition(0d, 0d), false);
 		repaint();
 	}
 

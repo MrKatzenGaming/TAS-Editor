@@ -24,12 +24,22 @@ public enum Button {
 	KEY_DDOWN,
 
 	KEY_LSTICK,
-	KEY_RSTICK;
+	KEY_RSTICK,
 
+	KEY_M,
+	KEY_MU,
+	KEY_MD,
+	KEY_ML,
+	KEY_MR,
+
+	KEY_MUU,
+	KEY_MDD,
+	KEY_MLL,
+	KEY_MRR;
 
 
 	@Override
-	public String toString(){
-		return name().replace("KEY_","");
+	public String toString() {
+		return name().replace("KEY_", "");
 	}
 }

@@ -6,6 +6,8 @@ import io.github.jadefalke2.stickRelatedClasses.StickPosition;
 import io.github.jadefalke2.util.*;
 
 import java.io.*;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.*;
 
 public class TSVTas {
@@ -26,25 +28,41 @@ public class TSVTas {
 				EnumSet<Button> currentButtons = inputLines[i].buttons;
 				EnumSet<Button> nextButtons = inputLines[i + 1].buttons;
 
-				if (nextButtons.contains(Button.KEY_L)) {
-					currentButtons.add(Button.KEY_L);
-					nextButtons.remove(Button.KEY_L);
+				if (nextButtons.contains(Button.KEY_M)) {
+					currentButtons.add(Button.KEY_M);
+					nextButtons.remove(Button.KEY_M);
 				}
-				if (nextButtons.contains(Button.KEY_DUP)) {
-					currentButtons.add(Button.KEY_DUP);
-					nextButtons.remove(Button.KEY_DUP);
+				if (nextButtons.contains(Button.KEY_MUU)) {
+					currentButtons.add(Button.KEY_MUU);
+					nextButtons.remove(Button.KEY_MUU);
 				}
-				if (nextButtons.contains(Button.KEY_DDOWN)) {
-					currentButtons.add(Button.KEY_DDOWN);
-					nextButtons.remove(Button.KEY_DDOWN);
+				if (nextButtons.contains(Button.KEY_MDD)) {
+					currentButtons.add(Button.KEY_MDD);
+					nextButtons.remove(Button.KEY_MDD);
 				}
-				if (nextButtons.contains(Button.KEY_DLEFT)) {
-					currentButtons.add(Button.KEY_DLEFT);
-					nextButtons.remove(Button.KEY_DLEFT);
+				if (nextButtons.contains(Button.KEY_MLL)) {
+					currentButtons.add(Button.KEY_MLL);
+					nextButtons.remove(Button.KEY_MLL);
 				}
-				if (nextButtons.contains(Button.KEY_DRIGHT)) {
-					currentButtons.add(Button.KEY_DRIGHT);
-					nextButtons.remove(Button.KEY_DRIGHT);
+				if (nextButtons.contains(Button.KEY_MRR)) {
+					currentButtons.add(Button.KEY_MRR);
+					nextButtons.remove(Button.KEY_MRR);
+				}
+				if (nextButtons.contains(Button.KEY_MU)) {
+					currentButtons.add(Button.KEY_MU);
+					nextButtons.remove(Button.KEY_MU);
+				}
+				if (nextButtons.contains(Button.KEY_MD)) {
+					currentButtons.add(Button.KEY_MD);
+					nextButtons.remove(Button.KEY_MD);
+				}
+				if (nextButtons.contains(Button.KEY_ML)) {
+					currentButtons.add(Button.KEY_ML);
+					nextButtons.remove(Button.KEY_ML);
+				}
+				if (nextButtons.contains(Button.KEY_MR)) {
+					currentButtons.add(Button.KEY_MR);
+					nextButtons.remove(Button.KEY_MR);
 				}
 			}
 
@@ -54,8 +72,8 @@ public class TSVTas {
 				if (i > 0) {
 					sb.append(duration).append("\t")
 						.append(convertButtons(inputLines[i - 1].getButtonsString())).append("\t")
-						.append(convertStickL(inputLines[i - 1].getStickL())).append("\t")
-						.append(convertStickR(inputLines[i - 1].getStickR())).append("\n");
+						.append(convertStick(inputLines[i - 1].getStickL(),true)).append("\t")
+						.append(convertStick(inputLines[i - 1].getStickR(),false)).append("\n");
 				}
 				duration = 1;
 			}
@@ -64,40 +82,15 @@ public class TSVTas {
 		if (inputLines.length > 0) {
 			sb.append(duration).append("\t")
 				.append(convertButtons(inputLines[inputLines.length - 1].getButtonsString())).append("\t")
-				.append(convertStickL(inputLines[inputLines.length - 1].getStickL())).append("\t")
-				.append(convertStickR(inputLines[inputLines.length - 1].getStickR())).append("\n");
+				.append(convertStick(inputLines[inputLines.length - 1].getStickL(),true)).append("\t")
+				.append(convertStick(inputLines[inputLines.length - 1].getStickR(),false)).append("\n");
 		}
 
 		int i = 0;
 		while (i < inputLines.length) {
 			InputLine curLine = inputLines[i];
 			InputLine prevLine = i-1 < 0 ? InputLine.getEmpty() : inputLines[i-1];
-			if (prevLine.buttons.contains(Button.KEY_DUP)) {
-				prevLine.buttons.remove(Button.KEY_DUP);
-				curLine.buttons.add(Button.KEY_DUP);
-				i++;
-			}
-			if (prevLine.buttons.contains(Button.KEY_DDOWN)) {
-				prevLine.buttons.remove(Button.KEY_DDOWN);
-				curLine.buttons.add(Button.KEY_DDOWN);
-				i++;
-			}
-			if (prevLine.buttons.contains(Button.KEY_DLEFT)) {
-				prevLine.buttons.remove(Button.KEY_DLEFT);
-				curLine.buttons.add(Button.KEY_DLEFT);
-				i++;
-			}
-			if (prevLine.buttons.contains(Button.KEY_DRIGHT)) {
-				prevLine.buttons.remove(Button.KEY_DRIGHT);
-				curLine.buttons.add(Button.KEY_DRIGHT);
-				i++;
-			}
-			if (prevLine.buttons.contains(Button.KEY_L)) {
-				prevLine.buttons.remove(Button.KEY_L);
-				curLine.buttons.add(Button.KEY_L);
-				i++;
-			}
-			i++;
+			i = moveMotion(i, curLine, prevLine);
 		}
 		Settings settings = Settings.INSTANCE;
 
@@ -117,38 +110,73 @@ public class TSVTas {
 		return sb.toString();
 	}
 
-    private static String convertButtons(String buttons) {
+	private static int moveMotion(int i, InputLine curLine, InputLine prevLine) {
+		if (prevLine.buttons.contains(Button.KEY_MUU)) {
+			prevLine.buttons.remove(Button.KEY_MUU);
+			curLine.buttons.add(Button.KEY_MUU);
+			i++;
+		}
+		if (prevLine.buttons.contains(Button.KEY_MDD)) {
+			prevLine.buttons.remove(Button.KEY_MDD);
+			curLine.buttons.add(Button.KEY_MDD);
+			i++;
+		}
+		if (prevLine.buttons.contains(Button.KEY_MLL)) {
+			prevLine.buttons.remove(Button.KEY_MLL);
+			curLine.buttons.add(Button.KEY_MLL);
+			i++;
+		}
+		if (prevLine.buttons.contains(Button.KEY_MRR)) {
+			prevLine.buttons.remove(Button.KEY_MRR);
+			curLine.buttons.add(Button.KEY_MRR);
+			i++;
+		}
+		if (prevLine.buttons.contains(Button.KEY_M)) {
+			prevLine.buttons.remove(Button.KEY_M);
+			curLine.buttons.add(Button.KEY_M);
+			i++;
+		}
+		if (prevLine.buttons.contains(Button.KEY_MU)) {
+			prevLine.buttons.remove(Button.KEY_MU);
+			curLine.buttons.add(Button.KEY_MU);
+			i++;
+		}
+		if (prevLine.buttons.contains(Button.KEY_MD)) {
+			prevLine.buttons.remove(Button.KEY_MD);
+			curLine.buttons.add(Button.KEY_MD);
+			i++;
+		}
+		if (prevLine.buttons.contains(Button.KEY_ML)) {
+			prevLine.buttons.remove(Button.KEY_ML);
+			curLine.buttons.add(Button.KEY_ML);
+			i++;
+		}
+		if (prevLine.buttons.contains(Button.KEY_MR)) {
+			prevLine.buttons.remove(Button.KEY_MR);
+			curLine.buttons.add(Button.KEY_MR);
+			i++;
+		}
+		i++;
+		return i;
+	}
+
+	private static String convertButtons(String buttons) {
         StringBuilder sb = new StringBuilder();
-		if (buttons.contains("KEY_L") && buttons.contains("KEY_DUP")) {
-			buttons = buttons.replace("KEY_L", "KEY_LUP");
-			buttons = buttons.replace("KEY_DUP", "");
-		}
-		if (buttons.contains("KEY_L") && buttons.contains("KEY_DDOWN")) {
-			buttons = buttons.replace("KEY_L", "KEY_LDOWN");
-			buttons = buttons.replace("KEY_DDOWN", "");
-		}
-		if (buttons.contains("KEY_L") && buttons.contains("KEY_DLEFT")) {
-			buttons = buttons.replace("KEY_L", "KEY_LLEFT");
-			buttons = buttons.replace("KEY_DLEFT", "");
-		}
-		if (buttons.contains("KEY_L") && buttons.contains("KEY_DRIGHT")) {
-			buttons = buttons.replace("KEY_L", "KEY_LRIGHT");
-			buttons = buttons.replace("KEY_DRIGHT", "");
-		}
         for (String button : buttons.split("\t")) {
             if (!button.isEmpty()) {
 				button = button.replace("KEY_", "");
                 switch (button) {
-					case "L" -> button = "m";
-					case "LUP" -> button = "m-u";
-					case "LDOWN" -> button = "m-d";
-					case "LLEFT" -> button = "m-l";
-					case "LRIGHT" -> button = "m-r";
-					case "DUP" -> button = "m-uu";
-					case "DDOWN" -> button = "m-dd";
-					case "DLEFT" -> button = "m-ll";
-					case "DRIGHT" -> button = "m-rr";
+					case "M" -> button = "m";
+					case "MU" -> button = "m-u";
+					case "MD" -> button = "m-d";
+					case "ML" -> button = "m-l";
+					case "MR" -> button = "m-r";
+					case "MUU" -> button = "m-uu";
+					case "MDD" -> button = "m-dd";
+					case "MLL" -> button = "m-ll";
+					case "MRR" -> button = "m-rr";
 					case "R" -> button = "r";
+					case "L" -> button = "l";
 					case "A" -> button = "a";
 					case "B" -> button = "b";
 					case "X" -> button = "x";
@@ -159,29 +187,34 @@ public class TSVTas {
 					case "RSTICK" -> button = "rs";
 					case "PLUS" -> button = "+";
 					case "MINUS" -> button = "-";
+					case "DUP" -> button = "dp-u";
+					case "DDOWN" -> button = "dp-d";
+					case "DLEFT" -> button = "dp-l";
+					case "DRIGHT" -> button = "dp-r";
 				}
 				sb.append(button).append("\t");
             }
         }
-        if (sb.length() > 0) {
+        if (!sb.isEmpty()) {
             sb.setLength(sb.length() - 1); // Remove trailing tab
         }
         return sb.toString();
     }
 
-    private static String convertStickL(StickPosition stickL) {
-        if (stickL.getX() == 0 && stickL.getY() == 0) {
-            return "";
-        }
-        return "lsx(" + stickL.getX() + ";" + stickL.getY() + ")";
-    }
-
-    private static String convertStickR(StickPosition stickR) {
-        if (stickR.getX() == 0 && stickR.getY() == 0) {
-            return "";
-        }
-        return "rsx(" + stickR.getX() + ";" + stickR.getY() + ")";
-    }
+	private static String convertStick(StickPosition stick, boolean isLeft) {
+		double r = stick.getRadius();
+		double t = Math.toDegrees(stick.getTheta());
+		if (r == 0 && t == 0) {
+			return "";
+		}
+		DecimalFormat df = new DecimalFormat("#.####");
+		df.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.US));
+		if (r == 1) {
+			return String.format(Locale.US, "%s(%s)", isLeft ? "ls" : "rs", df.format(t));
+		} else {
+			return String.format(Locale.US, "%s(%s;%s)", isLeft ? "ls" : "rs", df.format(r), df.format(t));
+		}
+	}
 
     public static Script read(File file) throws CorruptedScriptException, IOException {
         Script s = read(Util.fileToString(file));
@@ -217,32 +250,7 @@ public class TSVTas {
 		while (i < inputLines.size()) {
 			InputLine curLine = inputLines.get(i);
 			InputLine prevLine = i-1 < 0 ? InputLine.getEmpty() :inputLines.get(i - 1);
-			if (prevLine.buttons.contains(Button.KEY_DUP)) {
-				prevLine.buttons.remove(Button.KEY_DUP);
-				curLine.buttons.add(Button.KEY_DUP);
-				i++;
-			}
-			if (prevLine.buttons.contains(Button.KEY_DDOWN)) {
-				prevLine.buttons.remove(Button.KEY_DDOWN);
-				curLine.buttons.add(Button.KEY_DDOWN);
-				i++;
-			}
-			if (prevLine.buttons.contains(Button.KEY_DLEFT)) {
-				prevLine.buttons.remove(Button.KEY_DLEFT);
-				curLine.buttons.add(Button.KEY_DLEFT);
-				i++;
-			}
-			if (prevLine.buttons.contains(Button.KEY_DRIGHT)) {
-				prevLine.buttons.remove(Button.KEY_DRIGHT);
-				curLine.buttons.add(Button.KEY_DRIGHT);
-				i++;
-			}
-			if (prevLine.buttons.contains(Button.KEY_L)) {
-				prevLine.buttons.remove(Button.KEY_L);
-				curLine.buttons.add(Button.KEY_L);
-				i++;
-			}
-			i++;
+			i = moveMotion(i, curLine, prevLine);
 		}
 
 		return new Script(inputLines.toArray(new InputLine[0]), 0);
@@ -255,8 +263,35 @@ public class TSVTas {
 
 		String[] components = full.split("\t");
 		int len = components.length;
-		int sticklidx = indexOf(components, "lsx");
-		int stickridx = indexOf(components, "rsx");
+		boolean radialStick = false;
+		boolean RhasR = false;
+		boolean LhasR = false;
+		int sticklidx = 0;
+		int stickridx = 0;
+
+		if (Arrays.toString(components).contains("lsx") || Arrays.toString(components).contains("rsx")) {
+			sticklidx = indexOf(components, "lsx");
+			stickridx = indexOf(components, "rsx");
+		} else if (Arrays.toString(components).contains("ls") || Arrays.toString(components).contains("rs")) {
+			radialStick = true;
+			sticklidx = indexOf(components, "ls");
+			stickridx = indexOf(components, "rs");
+
+			if (sticklidx != -1) {
+				if (components[sticklidx].contains(";")) {
+					LhasR = true;
+				}
+			}
+			if (stickridx != -1) {
+				if (components[stickridx].contains(";")) {
+					RhasR = true;
+				}
+			}
+		} else {
+			sticklidx = -1;
+			stickridx = -1;
+		}
+
 		int numButtons;
 
 		if (sticklidx != -1) {
@@ -274,81 +309,77 @@ public class TSVTas {
 				Collections.addAll(curLine.buttons, readCovertButton(components[i]));
 			}
 		}
-		if (sticklidx != -1) {
-			String[] stickL = components[sticklidx].split("\\(")[1].split("\\)")[0].replace(" ", "").split(";");
-			curLine.setStickL(new StickPosition(Integer.parseInt(stickL[0]), Integer.parseInt(stickL[1])));
-		}
-		if (stickridx != -1) {
-			String[] stickR = components[stickridx].split("\\(")[1].split("\\)")[0].replace(" ", "").split(";");
-			curLine.setStickR(new StickPosition(Integer.parseInt(stickR[0]), Integer.parseInt(stickR[1])));
+		if (radialStick) {
+			if (!LhasR && sticklidx != -1) {
+				String stickL = components[sticklidx].split("\\(")[1].split("\\)")[0].replace(" ", "");
+				curLine.setStickL(new StickPosition(Double.parseDouble(stickL)));
+			} else if (sticklidx != -1) {
+				String[] stickL = components[sticklidx].split("\\(")[1].split("\\)")[0].replace(" ", "").split(";");
+				curLine.setStickL(new StickPosition(Float.parseFloat(stickL[0]), Double.parseDouble(stickL[1])));
+			}
+			if (!RhasR && stickridx != -1) {
+				String stickR = components[stickridx].split("\\(")[1].split("\\)")[0].replace(" ", "");
+				curLine.setStickR(new StickPosition(Double.parseDouble(stickR)));
+			} else if (stickridx != -1) {
+				String[] stickR = components[stickridx].split("\\(")[1].split("\\)")[0].replace(" ", "").split(";");
+				curLine.setStickR(new StickPosition(Float.parseFloat(stickR[0]), Double.parseDouble(stickR[1])));
+			}
+
+		} else {
+			if (sticklidx != -1) {
+				String[] stickL = components[sticklidx].split("\\(")[1].split("\\)")[0].replace(" ", "").split(";");
+				curLine.setStickL(new StickPosition(Integer.parseInt(stickL[0]), Integer.parseInt(stickL[1])));
+			}
+
+			if (stickridx != -1) {
+				String[] stickR = components[stickridx].split("\\(")[1].split("\\)")[0].replace(" ", "").split(";");
+				curLine.setStickR(new StickPosition(Integer.parseInt(stickR[0]), Integer.parseInt(stickR[1])));
+			}
 		}
 		return curLine;
 	}
 
 	private static Button[] readCovertButton(String button) {
-		switch (button.toLowerCase()) {
-			case "m" -> {
-				return new Button[]{Button.KEY_L};
+		if (button.contains("/")) {
+			String[] parts = button.split("/");
+			Button[] buttons = new Button[parts.length];
+			for (int i = 0; i < parts.length; i++) {
+				buttons[i] = convertSingleButton(parts[i]);
 			}
-			case "m-u" -> {
-				return new Button[]{Button.KEY_L, Button.KEY_DUP};
-			}
-			case "m-d" -> {
-				return new Button[]{Button.KEY_L, Button.KEY_DDOWN};
-			}
-			case "m-l" -> {
-				return new Button[]{Button.KEY_L, Button.KEY_DLEFT};
-			}
-			case "m-r" -> {
-				return new Button[]{Button.KEY_L, Button.KEY_DRIGHT};
-			}
-			case "m-uu" -> {
-				return new Button[]{Button.KEY_DUP};
-			}
-			case "m-dd" -> {
-				return new Button[]{Button.KEY_DDOWN};
-			}
-			case "m-ll" -> {
-				return new Button[]{Button.KEY_DLEFT};
-			}
-			case "m-rr" -> {
-				return new Button[]{Button.KEY_DRIGHT};
-			}
-			case "r" -> {
-				return new Button[]{Button.KEY_R};
-			}
-			case "a" -> {
-				return new Button[]{Button.KEY_A};
-			}
-			case "b" -> {
-				return new Button[]{Button.KEY_B};
-			}
-			case "x" -> {
-				return new Button[]{Button.KEY_X};
-			}
-			case "y" -> {
-				return new Button[]{Button.KEY_Y};
-			}
-			case "zl" -> {
-				return new Button[]{Button.KEY_ZL};
-			}
-			case "zr" -> {
-				return new Button[]{Button.KEY_ZR};
-			}
-			case "ls" -> {
-				return new Button[]{Button.KEY_LSTICK};
-			}
-			case "rs" -> {
-				return new Button[]{Button.KEY_RSTICK};
-			}
-			case "+" -> {
-				return new Button[]{Button.KEY_PLUS};
-			}
-			case "-" -> {
-				return new Button[]{Button.KEY_MINUS};
-			}
+			return buttons;
+		} else {
+			return new Button[]{convertSingleButton(button)};
 		}
-		throw new IllegalArgumentException("Unknown button: " + button);
+	}
+	private static Button convertSingleButton(String button) {
+		return switch (button.toLowerCase()) {
+			case "m" -> Button.KEY_M;
+			case "m-u" -> Button.KEY_MU;
+			case "m-d" -> Button.KEY_MD;
+			case "m-l" -> Button.KEY_ML;
+			case "m-r" -> Button.KEY_MR;
+			case "m-uu" -> Button.KEY_MUU;
+			case "m-dd" -> Button.KEY_MDD;
+			case "m-ll" -> Button.KEY_MLL;
+			case "m-rr" -> Button.KEY_MRR;
+			case "r" -> Button.KEY_R;
+			case "l" -> Button.KEY_L;
+			case "a" -> Button.KEY_A;
+			case "b" -> Button.KEY_B;
+			case "x" -> Button.KEY_X;
+			case "y" -> Button.KEY_Y;
+			case "zl" -> Button.KEY_ZL;
+			case "zr" -> Button.KEY_ZR;
+			case "ls" -> Button.KEY_LSTICK;
+			case "rs" -> Button.KEY_RSTICK;
+			case "+" -> Button.KEY_PLUS;
+			case "-" -> Button.KEY_MINUS;
+			case "dp-u" -> Button.KEY_DUP;
+			case "dp-d" -> Button.KEY_DDOWN;
+			case "dp-l" -> Button.KEY_DLEFT;
+			case "dp-r" -> Button.KEY_DRIGHT;
+			default -> throw new IllegalArgumentException("Unknown button: " + button);
+		};
 	}
 
 	public static int indexOf(String[] array, String element) {
@@ -361,11 +392,5 @@ public class TSVTas {
 			}
 		}
 		return -1;
-	}
-	public static int countElementsBetween(String[] array, int index1, int index2) {
-		if (array == null || index1 < 0 || index2 < 0 || index1 >= array.length || index2 >= array.length || index1 >= index2) {
-			return -1;
-		}
-		return index2 - index1 - 1;
 	}
 }

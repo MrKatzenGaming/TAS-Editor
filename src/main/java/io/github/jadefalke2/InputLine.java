@@ -20,8 +20,8 @@ public class InputLine {
 	// Contructors
 
 	public InputLine() {
-		stickL = new StickPosition(0,0);
-		stickR = new StickPosition(0,0);
+		stickL = new StickPosition(0d,0d);
+		stickR = new StickPosition(0d,0d);
 	}
 
 	public InputLine(EnumSet<Button> buttons, StickPosition stickL, StickPosition stickR) {

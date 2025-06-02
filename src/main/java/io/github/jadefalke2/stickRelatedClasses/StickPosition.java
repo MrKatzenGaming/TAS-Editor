@@ -63,17 +63,21 @@ public class StickPosition {
 	 * @param angle the angle of this position (0-360)
 	 * @param radius radius of this position from 0;0
 	 */
-	public StickPosition(int angle, double radius) {
-		this(Math.toRadians(angle), radius);
+	public StickPosition(float angle, double radius) {
+		this(Math.toRadians((angle+360)%360), radius);
 	}
 
 	public StickPosition(String component) {
 		this(Integer.parseInt(component.split(";")[0]), Integer.parseInt(component.split(";")[1]));
 	}
 
+	public StickPosition(double angle) {
+		this(Math.toRadians(angle), 1);
+	}
+
 	@Override
 	public StickPosition clone(){
-		return new StickPosition(x, y);
+		return new StickPosition(theta, radius);
 	}
 
 	// getter
@@ -98,7 +102,7 @@ public class StickPosition {
 		return theta;
 	}
 	private static double calcTheta(int x, int y) {
-		return ((Math.atan2(y,x) + (2*Math.PI)) % (2*Math.PI));
+		return (((Math.atan2(y,x) + (2*Math.PI)) % (2*Math.PI)));
 	}
 
 	/**

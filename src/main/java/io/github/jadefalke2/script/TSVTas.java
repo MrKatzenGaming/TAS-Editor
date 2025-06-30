@@ -20,7 +20,6 @@ public class TSVTas {
 	public static String write(Script script) {
 		InputLine[] inputLines = script.getLines().clone();
 		StringBuilder sb = new StringBuilder();
-		int duration = 1;
 
 		for (int i = 0; i < inputLines.length; i++) {
 			// Move special buttons from the next frame to the current frame
@@ -66,32 +65,19 @@ public class TSVTas {
 				}
 			}
 
-			if (i > 0 && inputLines[i].equals(inputLines[i - 1])) {
-				duration++;
-			} else {
-				if (i > 0) {
-					sb.append(duration).append("\t")
-						.append(convertButtons(inputLines[i - 1].getButtonsString())).append("\t")
-						.append(convertStick(inputLines[i - 1].getStickL(),true)).append("\t")
-						.append(convertStick(inputLines[i - 1].getStickR(),false)).append("\n");
-				}
-				duration = 1;
-			}
-		}
+			// Append the current line's data
+			sb.append(convertButtons(inputLines[i].getButtonsString())).append("\t")
+				.append(convertStick(inputLines[i].getStickL(), true)).append("\t")
+				.append(convertStick(inputLines[i].getStickR(), false)).append("\n");
 
-		if (inputLines.length > 0) {
-			sb.append(duration).append("\t")
-				.append(convertButtons(inputLines[inputLines.length - 1].getButtonsString())).append("\t")
-				.append(convertStick(inputLines[inputLines.length - 1].getStickL(),true)).append("\t")
-				.append(convertStick(inputLines[inputLines.length - 1].getStickR(),false)).append("\n");
 		}
-
 		int i = 0;
 		while (i < inputLines.length) {
 			InputLine curLine = inputLines[i];
 			InputLine prevLine = i-1 < 0 ? InputLine.getEmpty() : inputLines[i-1];
 			i = moveMotion(i, curLine, prevLine);
 		}
+
 		Settings settings = Settings.INSTANCE;
 
 		StringBuilder header = new StringBuilder();
@@ -105,9 +91,39 @@ public class TSVTas {
 		}
 		header.append("//\tAuthor: ").append(settings.authorName.get()).append("\n");
 
-		sb.insert(0, header);
+		String combined = combineDuplicateLines(sb.toString());
+		sb.delete(0, sb.length()); // Clear the StringBuilder before appending
+		sb.append(header);
+		sb.append(combined);
 
 		return sb.toString();
+	}
+
+	private static String combineDuplicateLines(String input) {
+		String[] lines = input.split("\n");
+		StringBuilder result = new StringBuilder();
+
+		String previousLine = null;
+		int count = 0;
+
+		for (String line : lines) {
+			if (line.equals(previousLine)) {
+				count++;
+			} else {
+				if (previousLine != null) {
+					result.append(count).append("\t").append(previousLine).append("\n");
+				}
+				previousLine = line;
+				count = 1;
+			}
+		}
+
+		// Append the last line
+		if (previousLine != null) {
+			result.append(count).append("\t").append(previousLine).append("\n");
+		}
+
+		return result.toString();
 	}
 
 	private static int moveMotion(int i, InputLine curLine, InputLine prevLine) {
@@ -207,12 +223,12 @@ public class TSVTas {
 		if (r == 0 && t == 0) {
 			return "";
 		}
-		DecimalFormat df = new DecimalFormat("#.####");
+		DecimalFormat df = new DecimalFormat("#.###");
 		df.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.US));
 		if (r == 1) {
-			return String.format(Locale.US, "%s(%s)", isLeft ? "ls" : "rs", df.format(t));
+			return String.format(Locale.US, "%s(%s)",isLeft ? "ls" : "rs", df.format(t));
 		} else {
-			return String.format(Locale.US, "%s(%s;%s)", isLeft ? "ls" : "rs", df.format(r), df.format(t));
+			return String.format(Locale.US, "%s(%s;%s)",isLeft ? "ls" : "rs", df.format(r), df.format(t));
 		}
 	}
 
@@ -237,7 +253,7 @@ public class TSVTas {
 			if (line.startsWith("//")) {
 				continue;
 			}
-
+			System.out.println(i+1);
 			InputLine currentInputLine = readLine(line);
 
 			int duration = Integer.parseInt(line.split("\t")[0]);
@@ -269,13 +285,13 @@ public class TSVTas {
 		int sticklidx = 0;
 		int stickridx = 0;
 
-		if (Arrays.toString(components).contains("lsx") || Arrays.toString(components).contains("rsx")) {
-			sticklidx = indexOf(components, "lsx");
-			stickridx = indexOf(components, "rsx");
-		} else if (Arrays.toString(components).contains("ls") || Arrays.toString(components).contains("rs")) {
+		if (Arrays.toString(components).contains("lsx(") || Arrays.toString(components).contains("rsx(")) {
+			sticklidx = indexOf(components, "lsx(");
+			stickridx = indexOf(components, "rsx(");
+		} else if (Arrays.toString(components).contains("ls(") || Arrays.toString(components).contains("rs(")) {
 			radialStick = true;
-			sticklidx = indexOf(components, "ls");
-			stickridx = indexOf(components, "rs");
+			sticklidx = indexOf(components, "ls(");
+			stickridx = indexOf(components, "rs(");
 
 			if (sticklidx != -1) {
 				if (components[sticklidx].contains(";")) {
@@ -315,14 +331,14 @@ public class TSVTas {
 				curLine.setStickL(new StickPosition(Double.parseDouble(stickL)));
 			} else if (sticklidx != -1) {
 				String[] stickL = components[sticklidx].split("\\(")[1].split("\\)")[0].replace(" ", "").split(";");
-				curLine.setStickL(new StickPosition(Float.parseFloat(stickL[0]), Double.parseDouble(stickL[1])));
+				curLine.setStickL(new StickPosition(Float.parseFloat(stickL[1]), Double.parseDouble(stickL[0])));
 			}
 			if (!RhasR && stickridx != -1) {
 				String stickR = components[stickridx].split("\\(")[1].split("\\)")[0].replace(" ", "");
 				curLine.setStickR(new StickPosition(Double.parseDouble(stickR)));
 			} else if (stickridx != -1) {
 				String[] stickR = components[stickridx].split("\\(")[1].split("\\)")[0].replace(" ", "").split(";");
-				curLine.setStickR(new StickPosition(Float.parseFloat(stickR[0]), Double.parseDouble(stickR[1])));
+				curLine.setStickR(new StickPosition(Float.parseFloat(stickR[1]), Double.parseDouble(stickR[0])));
 			}
 
 		} else {

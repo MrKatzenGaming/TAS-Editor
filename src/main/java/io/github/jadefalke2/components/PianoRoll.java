@@ -47,7 +47,7 @@ public class PianoRoll extends JTable {
 		setAutoResizeMode(AUTO_RESIZE_ALL_COLUMNS);
 		setModel(model);
 		setDragEnabled(false);
-		setRowHeight(25);
+		setRowHeight(20);
 		setShowGrid(true);
 		setFillsViewportHeight(true);
 		setFont(new Font("Arial", Font.PLAIN, 15));

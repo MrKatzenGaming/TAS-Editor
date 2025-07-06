@@ -61,7 +61,10 @@ public class SettingsDialog extends JDialog {
 		addSeperator(mainPanel, c);
 		c.gridy++;
 
-		addTitle("Practice Mod - Mario Odyssey", mainPanel, c);
+		addTitle("Lunakit - Mario Odyssey", mainPanel, c);
+		c.gridy++;
+
+		addCheckboxSetting("2P Mode", prefs.is2PMode.get(), prefs.is2PMode::set, mainPanel, c);
 		c.gridy++;
 
 		addTextFieldSetting("Stage", prefs.practiceStageName.get(), prefs.practiceStageName::set, mainPanel, c);

@@ -89,6 +89,11 @@ public class TSVTas {
 		if (settings.startPositionX.get() != 0.0 && settings.startPositionY.get() != 0.0 && settings.startPositionZ.get() != 0.0) {
 			header.append("$pos = (").append(settings.startPositionX.get()).append("; ").append(settings.startPositionY.get()).append("; ").append(settings.startPositionZ.get()).append(")\n");
 		}
+
+		if (settings.is2PMode.get()) {
+			header.append("$is2P = true\n");
+		}
+
 		header.append("//\tAuthor: ").append(settings.authorName.get()).append("\n");
 
 		String combined = combineDuplicateLines(sb.toString());

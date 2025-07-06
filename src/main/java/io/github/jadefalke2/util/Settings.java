@@ -40,6 +40,8 @@ public class Settings {
 
 	public final ObservableProperty<File> tsvtaspath;
 
+	public final ObservableProperty<Boolean> is2PMode;
+
 
 	private final Preferences backingPrefs;
 
@@ -67,6 +69,8 @@ public class Settings {
 
 		tsvtaspath = new ObservableProperty<>(new File(prefs.get("tsvtaspath", System.getProperty("user.dir"))));
 
+		is2PMode = new ObservableProperty<>(Boolean.parseBoolean(prefs.get("is2PMode", "false")));
+
 	}
 
 	public void storeSettings() throws BackingStoreException {
@@ -87,6 +91,7 @@ public class Settings {
 		backingPrefs.put("startPositionY", startPositionY.get() + "");
 		backingPrefs.put("startPositionZ", startPositionZ.get() + "");
 		backingPrefs.put("tsvtaspath", tsvtaspath.get() + "");
+		backingPrefs.put("is2PMode", is2PMode.get() + "");
 
 		backingPrefs.flush();
 	}

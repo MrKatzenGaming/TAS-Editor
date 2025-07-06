@@ -8,18 +8,17 @@ import io.github.jadefalke2.actions.LineAction;
 import io.github.jadefalke2.script.NXTas;
 import io.github.jadefalke2.util.*;
 
-import javax.swing.AbstractAction;
-import javax.swing.JTable;
-import javax.swing.KeyStroke;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
+import java.awt.Font;
+import java.awt.Point;
+import java.awt.Toolkit;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
@@ -114,8 +113,7 @@ public class PianoRoll extends JTable {
 		int[] columnsWidth = {
 			45,											   		                // frame number
 			85, 85,										  	                	// sticks
-			18, 18, 18, 18, 25, 25, 18, 18, 18, 18, 25, 25, 25, 25, 25, 25,	    // buttons
-			18, 25, 25, 25, 25, 30, 30, 30, 30 									// motion
+			18, 18, 18, 18, 25, 25, 25, 25, 40, 40, 35, 35, 35, 35, 45, 45	    // buttons
 		};
 
 		for (int i = 0; i < columnsWidth.length && i < getColumnCount(); i++) {
@@ -132,6 +130,14 @@ public class PianoRoll extends JTable {
 
 	public void deleteSelectedRows(){
 		executeAction(new LineAction(script, getSelectedRows(), LineAction.Type.DELETE));
+	}
+
+	public void clearSelectedRows(){
+		InputLine[] newLines = new InputLine[getSelectedRowCount()];
+		for (int i = 0; i < newLines.length; i++) {
+			newLines[i] = InputLine.getEmpty();
+		}
+		executeAction(new LineAction(script, getSelectedRows(), newLines, LineAction.Type.REPLACE));
 	}
 
 	public void replaceSelectedRows(InputLine[] rows){

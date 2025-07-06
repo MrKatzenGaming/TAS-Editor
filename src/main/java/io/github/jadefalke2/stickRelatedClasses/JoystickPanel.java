@@ -44,7 +44,7 @@ public class JoystickPanel extends JPanel {
 	public JoystickPanel(ActionListener smoothTransitionListener, String descriptor) {
 
 		// setting global vars
-		stickPosition = new StickPosition(0d,0d);
+		stickPosition = new StickPosition(0,0);
 		joystick = new Joystick();
 		joystick.setThumbPos(stickPosition, false);
 
@@ -56,7 +56,10 @@ public class JoystickPanel extends JPanel {
 		SpinnerModel xModel = new SpinnerNumberModel(0, -32767, 32767, 100);
 		SpinnerModel yModel = new SpinnerNumberModel(0, -32767, 32767, 100);
 		SpinnerModel radiusModel = new SpinnerNumberModel(0, 0, 1, 0.1);
-		SpinnerModel angleModel = new SpinnerNumberModel(0, -1, Integer.MAX_VALUE, 1.0); // using double as step size to force double number model
+		SpinnerNumberModel angleModel = new SpinnerNumberModel(0, -1, 361, 1.0); // using double as step size to force double number model
+		// disable bounds. If done above, the model starts returning `int`s (precision loss)
+		angleModel.setMinimum(null);
+		angleModel.setMaximum(null);
 
 		xSpinner = new JSpinner(xModel);
 		ySpinner = new JSpinner(yModel);
@@ -131,7 +134,7 @@ public class JoystickPanel extends JPanel {
 
 		centerButton = new JButton("center");
 		centerButton.addActionListener(e -> {
-			joystick.setThumbPos(new StickPosition(0d, 0d), false);
+			joystick.setThumbPos(new StickPosition(0, 0), false);
 			updateStickPosition(true);
 		});
 
@@ -214,7 +217,7 @@ public class JoystickPanel extends JPanel {
 
 	public void setAllEnabled(boolean enable) {
 		if(!enable){
-			setStickPosition(new StickPosition(0d, 0d));
+			setStickPosition(new StickPosition(0, 0));
 			setStickPositions(new StickPosition[0]);
 		}
 

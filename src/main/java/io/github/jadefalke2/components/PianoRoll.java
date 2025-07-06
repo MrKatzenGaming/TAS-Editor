@@ -113,7 +113,8 @@ public class PianoRoll extends JTable {
 		int[] columnsWidth = {
 			45,											   		                // frame number
 			85, 85,										  	                	// sticks
-			18, 18, 18, 18, 25, 25, 25, 25, 40, 40, 35, 35, 35, 35, 45, 45	    // buttons
+			18, 18, 18, 18, 25, 25, 18, 18, 18, 18, 25, 25, 25, 25, 25, 25,	    // buttons
+			18, 25, 25, 25, 25, 30, 30, 30, 30 									// motion
 		};
 
 		for (int i = 0; i < columnsWidth.length && i < getColumnCount(); i++) {

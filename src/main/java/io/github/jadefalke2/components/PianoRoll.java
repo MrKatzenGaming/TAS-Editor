@@ -39,9 +39,9 @@ public class PianoRoll extends JTable {
 		this.scriptTab = scriptTab;
 		this.model = new ScriptTableModel(script);
 
-		DefaultTableCellRenderer centerRenderer = new ButtonHeaderRenderer();
+		DefaultTableCellRenderer cellRenderer  = new CustomPianoRollCellRenderer();
 //		DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-		centerRenderer.setHorizontalAlignment( SwingConstants.CENTER );
+		cellRenderer.setHorizontalAlignment( SwingConstants.CENTER );
 
 		setAutoResizeMode(AUTO_RESIZE_ALL_COLUMNS);
 		setModel(model);
@@ -53,7 +53,7 @@ public class PianoRoll extends JTable {
 
 		getTableHeader().setResizingAllowed(true);
 		getTableHeader().setReorderingAllowed(true);
-		getTableHeader().setDefaultRenderer(centerRenderer);
+		getTableHeader().setDefaultRenderer(cellRenderer);
 		getTableHeader().setPreferredSize(new Dimension(getTableHeader().getPreferredSize().width, 30));
 
 		getTableHeader().addMouseListener(new MouseListener() {
@@ -76,7 +76,7 @@ public class PianoRoll extends JTable {
 
 		//Center all columns
 		for (int i = 0; i < getColumnCount(); i++){
-			getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+			getColumnModel().getColumn(i).setCellRenderer(cellRenderer);
 		}
 
 		// Mouse listener

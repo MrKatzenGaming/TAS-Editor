@@ -258,7 +258,7 @@ public class TSVTas {
 			if (line.startsWith("//")) {
 				continue;
 			}
-			System.out.println(i+1);
+
 			InputLine currentInputLine = readLine(line);
 
 			int duration = Integer.parseInt(line.split("\t")[0]);

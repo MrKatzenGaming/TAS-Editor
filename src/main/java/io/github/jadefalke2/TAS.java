@@ -3,7 +3,6 @@ package io.github.jadefalke2;
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 import io.github.jadefalke2.components.MainEditorWindow;
-import io.github.jadefalke2.util.CorruptedScriptException;
 import io.github.jadefalke2.util.Logger;
 import io.github.jadefalke2.util.Settings;
 
@@ -11,8 +10,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 public class TAS {
 
@@ -57,7 +54,7 @@ public class TAS {
 				SwingUtilities.updateComponentTreeUI(window);
 			}
 		} catch (UnsupportedLookAndFeelException e) {
-			e.printStackTrace();
+			System.out.println("Unsupported Look and Feel: " + e.getMessage());
 		}
 	}
 
@@ -79,25 +76,26 @@ public class TAS {
 		Runtime rt = Runtime.getRuntime();
 		Settings settings = Settings.INSTANCE;
 		Script script = mainEditorWindow.getActiveScriptTab().getScript();
+		String tsvpath = settings.tsvtaspath.get().getPath();
 		try {
 			script.saveFile();
 			Process p = rt.exec(new String[]{
 				"cmd.exe", "/c", "start", "/wait", "/D",
-				"\"" + String.join("\\", settings.tsvtaspath.get().getPath()) + "\"",
+				"\"" + String.join("\\", tsvpath) + "\"",
 				"py",
 				"tsv-tas.py",
 				"-f",
 				"\"" + script.getPath() + "\"",
-				script.getName().replace(".tsv", "")
+				script.getNameNoExtension()
 			});
 			p.waitFor();
-			System.out.println(settings.tsvtaspath.get().getPath() + "\\" + script.getName().replace(".tsv", ""));
-			File file = new File(settings.tsvtaspath.get().getPath() + "\\" + script.getName().replace(".tsv", ""));
+			System.out.println(tsvpath + "\\" + script.getNameNoExtension());
+			File file = new File(tsvpath + "\\" + script.getNameNoExtension());
 			file.delete();
 
 
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.out.println("Error while converting script: " + e.getMessage());
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
 		}

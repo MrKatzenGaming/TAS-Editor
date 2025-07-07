@@ -13,16 +13,20 @@ public enum Format {
 	TSVTAS;
 
 	public static Script read(File file, Format format) throws IOException, CorruptedScriptException {
-		if(format == nxTAS) return NXTas.read(file);
-		else if(format == STAS) return STas.read(file);
-		else if(format == TSVTAS) return TSVTas.read(file);
-		else throw new IllegalStateException("Unexpected value: " + format);
+		switch (format) {
+			case nxTAS -> {return NXTas.read(file);}
+			case STAS -> {return STas.read(file);}
+			case TSVTAS -> {return TSVTas.read(file);}
+			default -> throw new IllegalStateException("Unexpected value: " + format);
+		}
 	}
 	public static void write(Script script, File file, Format format) throws IOException {
-		if(format == nxTAS) NXTas.write(script, file);
-		else if(format == STAS) STas.write(script, file);
-		else if(format == TSVTAS) TSVTas.write(script, file);
-		else throw new IllegalStateException("Unexpected value: " + format);
+		switch (format) {
+			case nxTAS -> NXTas.write(script, file);
+			case STAS -> STas.write(script, file);
+			case TSVTAS -> TSVTas.write(script, file);
+			default -> throw new IllegalStateException("Unexpected value: " + format);
+		}
 	}
 
 }

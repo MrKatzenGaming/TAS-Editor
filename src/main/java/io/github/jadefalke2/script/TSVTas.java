@@ -9,6 +9,7 @@ import java.io.*;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.*;
+import java.util.function.Consumer;
 
 public class TSVTas {
 
@@ -26,42 +27,16 @@ public class TSVTas {
 			if (i < inputLines.length - 1) {
 				EnumSet<Button> currentButtons = inputLines[i].buttons;
 				EnumSet<Button> nextButtons = inputLines[i + 1].buttons;
+				Button[] motionButtons = {
+					Button.KEY_MUU, Button.KEY_MDD, Button.KEY_MLL, Button.KEY_MRR,
+					Button.KEY_MU, Button.KEY_MD, Button.KEY_ML, Button.KEY_MR
+				};
 
-				if (nextButtons.contains(Button.KEY_M)) {
-					currentButtons.add(Button.KEY_M);
-					nextButtons.remove(Button.KEY_M);
-				}
-				if (nextButtons.contains(Button.KEY_MUU)) {
-					currentButtons.add(Button.KEY_MUU);
-					nextButtons.remove(Button.KEY_MUU);
-				}
-				if (nextButtons.contains(Button.KEY_MDD)) {
-					currentButtons.add(Button.KEY_MDD);
-					nextButtons.remove(Button.KEY_MDD);
-				}
-				if (nextButtons.contains(Button.KEY_MLL)) {
-					currentButtons.add(Button.KEY_MLL);
-					nextButtons.remove(Button.KEY_MLL);
-				}
-				if (nextButtons.contains(Button.KEY_MRR)) {
-					currentButtons.add(Button.KEY_MRR);
-					nextButtons.remove(Button.KEY_MRR);
-				}
-				if (nextButtons.contains(Button.KEY_MU)) {
-					currentButtons.add(Button.KEY_MU);
-					nextButtons.remove(Button.KEY_MU);
-				}
-				if (nextButtons.contains(Button.KEY_MD)) {
-					currentButtons.add(Button.KEY_MD);
-					nextButtons.remove(Button.KEY_MD);
-				}
-				if (nextButtons.contains(Button.KEY_ML)) {
-					currentButtons.add(Button.KEY_ML);
-					nextButtons.remove(Button.KEY_ML);
-				}
-				if (nextButtons.contains(Button.KEY_MR)) {
-					currentButtons.add(Button.KEY_MR);
-					nextButtons.remove(Button.KEY_MR);
+				for (Button button : motionButtons) {
+					if (nextButtons.contains(button)) {
+						currentButtons.add(button);
+						nextButtons.remove(button);
+					}
 				}
 			}
 
@@ -104,6 +79,104 @@ public class TSVTas {
 		return sb.toString();
 	}
 
+	public static Script read(File file) throws IOException {
+		Script s = read(Util.fileToString(file));
+		s.setFile(file, Format.TSVTAS);
+		return s;
+	}
+
+	public static Script read(String script) {
+		List<InputLine> inputLines = new ArrayList<>();
+		String[] lines = script.split("\n");
+
+		for (String line : lines) {
+			if (line.trim().isEmpty() || line.startsWith("$") || line.startsWith("//")) {
+				continue;
+			}
+
+			InputLine currentInputLine = readLine(line);
+			int duration = Integer.parseInt(line.split("\t")[0]);
+
+			if (line.contains("/")) {
+				// Alternate buttons for the given duration
+				String[] buttons = line.split("\t")[1].split("/");
+				for (int j = 0; j < duration; j++) {
+					InputLine alternateLine = currentInputLine.clone();
+					alternateLine.buttons.clear();
+					alternateLine.buttons.add(Button.valueOf("KEY_" + buttons[j % buttons.length].toUpperCase()));
+					inputLines.add(alternateLine);
+				}
+			} else {
+				// Add the same line for the given duration
+				for (int j = 0; j < duration; j++) {
+					inputLines.add(currentInputLine.clone());
+				}
+			}
+		}
+
+		int i = 0;
+		while (i < inputLines.size()) {
+			InputLine curLine = inputLines.get(i);
+			InputLine prevLine = i - 1 < 0 ? InputLine.getEmpty() : inputLines.get(i - 1);
+			i = moveMotion(i, curLine, prevLine);
+		}
+
+		return new Script(inputLines.toArray(new InputLine[0]), 0);
+	}
+
+	public static InputLine readLine(String full) {
+		if (full == null || full.isEmpty()) {
+			return InputLine.getEmpty();
+		}
+
+		String[] components = full.split("\t");
+		String componentsString = Arrays.toString(components);
+		InputLine curLine = new InputLine();
+		int[] stickIdx = {0,0}; // Left, Right
+		boolean[] hasRadius = {false, false}; // Left, Right
+		boolean isPolarStrick = false;
+		int numButtons;
+
+
+		if (componentsString.contains("lsx(") || componentsString.contains("rsx(")) {
+			stickIdx[0] = indexOf(components, "lsx(");
+			stickIdx[1] = indexOf(components, "rsx(");
+		} else if (componentsString.contains("ls(") || componentsString.contains("rs(")) {
+			isPolarStrick = true;
+			stickIdx[0] = indexOf(components, "ls(");
+			stickIdx[1] = indexOf(components, "rs(");
+
+			hasRadius[0] = stickIdx[0] != -1 && components[stickIdx[0]].contains(";");
+			hasRadius[1] = stickIdx[1] != -1 && components[stickIdx[1]].contains(";");
+		} else {
+			stickIdx[0] = -1;
+			stickIdx[1] = -1;
+		}
+
+
+		if (stickIdx[0] != -1) {
+			numButtons = stickIdx[0] - 1;
+		} else if (stickIdx[1] != -1) {
+			numButtons = stickIdx[1] - 1;
+		} else {
+			numButtons = components.length - 1;
+		}
+
+		for (int i = 1; i <= numButtons; i++) {
+			if (!components[i].isEmpty()) {
+				Collections.addAll(curLine.buttons, readCovertButton(components[i]));
+			}
+		}
+		if (isPolarStrick) {
+			parseStickData(isPolarStrick, stickIdx[0], components, hasRadius[0], curLine::setStickL);
+			parseStickData(isPolarStrick, stickIdx[1], components, hasRadius[1], curLine::setStickR);
+		} else {
+			parseStickData(isPolarStrick, stickIdx[0], components, false, curLine::setStickL);
+			parseStickData(isPolarStrick, stickIdx[1], components, false, curLine::setStickR);
+		}
+		return curLine;
+	}
+
 	private static String combineDuplicateLines(String input) {
 		String[] lines = input.split("\n");
 		StringBuilder result = new StringBuilder();
@@ -132,50 +205,18 @@ public class TSVTas {
 	}
 
 	private static int moveMotion(int i, InputLine curLine, InputLine prevLine) {
-		if (prevLine.buttons.contains(Button.KEY_MUU)) {
-			prevLine.buttons.remove(Button.KEY_MUU);
-			curLine.buttons.add(Button.KEY_MUU);
-			i++;
-		}
-		if (prevLine.buttons.contains(Button.KEY_MDD)) {
-			prevLine.buttons.remove(Button.KEY_MDD);
-			curLine.buttons.add(Button.KEY_MDD);
-			i++;
-		}
-		if (prevLine.buttons.contains(Button.KEY_MLL)) {
-			prevLine.buttons.remove(Button.KEY_MLL);
-			curLine.buttons.add(Button.KEY_MLL);
-			i++;
-		}
-		if (prevLine.buttons.contains(Button.KEY_MRR)) {
-			prevLine.buttons.remove(Button.KEY_MRR);
-			curLine.buttons.add(Button.KEY_MRR);
-			i++;
-		}
-		if (prevLine.buttons.contains(Button.KEY_M)) {
-			prevLine.buttons.remove(Button.KEY_M);
-			curLine.buttons.add(Button.KEY_M);
-			i++;
-		}
-		if (prevLine.buttons.contains(Button.KEY_MU)) {
-			prevLine.buttons.remove(Button.KEY_MU);
-			curLine.buttons.add(Button.KEY_MU);
-			i++;
-		}
-		if (prevLine.buttons.contains(Button.KEY_MD)) {
-			prevLine.buttons.remove(Button.KEY_MD);
-			curLine.buttons.add(Button.KEY_MD);
-			i++;
-		}
-		if (prevLine.buttons.contains(Button.KEY_ML)) {
-			prevLine.buttons.remove(Button.KEY_ML);
-			curLine.buttons.add(Button.KEY_ML);
-			i++;
-		}
-		if (prevLine.buttons.contains(Button.KEY_MR)) {
-			prevLine.buttons.remove(Button.KEY_MR);
-			curLine.buttons.add(Button.KEY_MR);
-			i++;
+		EnumSet<Button> prevButtons = prevLine.buttons;
+		EnumSet<Button> curButtons = curLine.buttons;
+		Button[] motionButtons = {
+			Button.KEY_MUU, Button.KEY_MDD, Button.KEY_MLL, Button.KEY_MRR,
+			Button.KEY_MU, Button.KEY_MD, Button.KEY_ML, Button.KEY_MR
+		};
+		for (Button button : motionButtons) {
+			if (prevButtons.contains(button)) {
+				prevButtons.remove(button);
+				curButtons.add(button);
+				i++;
+			}
 		}
 		i++;
 		return i;
@@ -186,40 +227,20 @@ public class TSVTas {
         for (String button : buttons.split("\t")) {
             if (!button.isEmpty()) {
 				button = button.replace("KEY_", "");
-                switch (button) {
-					case "M" -> button = "m";
-					case "MU" -> button = "m-u";
-					case "MD" -> button = "m-d";
-					case "ML" -> button = "m-l";
-					case "MR" -> button = "m-r";
-					case "MUU" -> button = "m-uu";
-					case "MDD" -> button = "m-dd";
-					case "MLL" -> button = "m-ll";
-					case "MRR" -> button = "m-rr";
-					case "R" -> button = "r";
-					case "L" -> button = "l";
-					case "A" -> button = "a";
-					case "B" -> button = "b";
-					case "X" -> button = "x";
-					case "Y" -> button = "y";
-					case "ZL" -> button = "zl";
-					case "ZR" -> button = "zr";
-					case "LSTICK" -> button = "ls";
-					case "RSTICK" -> button = "rs";
-					case "PLUS" -> button = "+";
-					case "MINUS" -> button = "-";
-					case "DUP" -> button = "dp-u";
-					case "DDOWN" -> button = "dp-d";
-					case "DLEFT" -> button = "dp-l";
-					case "DRIGHT" -> button = "dp-r";
+				String[] nxButtons = {"M", "MU", "MD", "ML", "MR", "MUU", "MDD", "MLL", "MRR","R", "L", "A", "B", "X", "Y", "ZL", "ZR", "LSTICK", "RSTICK", "PLUS", "MINUS", "DUP", "DDOWN", "DLEFT", "DRIGHT"};
+				String[] tsvButtons = {"m", "m-u", "m-d", "m-l", "m-r", "m-uu", "m-dd", "m-ll", "m-rr","r", "l", "a", "b", "x", "y", "zl", "zr", "ls", "rs", "+", "-", "dp-u", "dp-d", "dp-l", "dp-r"};
+
+				for (int j = 0; j < nxButtons.length; j++) {
+					if (button.equals(nxButtons[j])) {
+						button = tsvButtons[j];
+						break;
+					}
 				}
+
 				sb.append(button).append("\t");
             }
         }
-        if (!sb.isEmpty()) {
-            sb.setLength(sb.length() - 1); // Remove trailing tab
-        }
-        return sb.toString();
+        return sb.toString().trim();
     }
 
 	private static String convertStick(StickPosition stick, boolean isLeft) {
@@ -237,127 +258,28 @@ public class TSVTas {
 		}
 	}
 
-    public static Script read(File file) throws CorruptedScriptException, IOException {
-        Script s = read(Util.fileToString(file));
-        s.setFile(file, Format.TSVTAS);
-        return s;
-    }
-
-	public static Script read(String script) throws CorruptedScriptException {
-		List<InputLine> inputLines = new ArrayList<>();
-		String[] lines = script.split("\n");
-
-		for (int i = 0; i < lines.length; i++) {
-			String line = lines[i];
-			if (line.trim().isEmpty()) {
-				continue;
-			}
-			if (line.startsWith("$")) {
-				continue;
-			}
-			if (line.startsWith("//")) {
-				continue;
-			}
-
-			InputLine currentInputLine = readLine(line);
-
-			int duration = Integer.parseInt(line.split("\t")[0]);
-
-			for (int j = 0; j < duration; j++) {
-				inputLines.add(currentInputLine.clone());
-			}
+	private static void parseStickData(boolean isPolarStrick, int stickIdx, String[] components, boolean hasRadius, Consumer<StickPosition> setStick) {
+		if (stickIdx != -1) {
+			String stickData = components[stickIdx].split("\\(")[1].split("\\)")[0].replace(" ", "");
+			StickPosition stickPosition = isPolarStrick
+				? parsePolarStick(stickData, hasRadius)
+				: parseCartesianStick(stickData);
+			setStick.accept(stickPosition);
 		}
-		int i = 0;
-		while (i < inputLines.size()) {
-			InputLine curLine = inputLines.get(i);
-			InputLine prevLine = i-1 < 0 ? InputLine.getEmpty() :inputLines.get(i - 1);
-			i = moveMotion(i, curLine, prevLine);
-		}
-
-		return new Script(inputLines.toArray(new InputLine[0]), 0);
 	}
 
-	public static InputLine readLine(String full) throws CorruptedScriptException {
-		if (full == null || full.isEmpty()) {
-			return InputLine.getEmpty();
-		}
-
-		String[] components = full.split("\t");
-		int len = components.length;
-		boolean radialStick = false;
-		boolean RhasR = false;
-		boolean LhasR = false;
-		int sticklidx = 0;
-		int stickridx = 0;
-
-		if (Arrays.toString(components).contains("lsx(") || Arrays.toString(components).contains("rsx(")) {
-			sticklidx = indexOf(components, "lsx(");
-			stickridx = indexOf(components, "rsx(");
-		} else if (Arrays.toString(components).contains("ls(") || Arrays.toString(components).contains("rs(")) {
-			radialStick = true;
-			sticklidx = indexOf(components, "ls(");
-			stickridx = indexOf(components, "rs(");
-
-			if (sticklidx != -1) {
-				if (components[sticklidx].contains(";")) {
-					LhasR = true;
-				}
-			}
-			if (stickridx != -1) {
-				if (components[stickridx].contains(";")) {
-					RhasR = true;
-				}
-			}
+	private static StickPosition parsePolarStick(String stickData, boolean hasRadius) {
+		if (hasRadius) {
+			String[] parts = stickData.split(";");
+			return new StickPosition(Float.parseFloat(parts[1]), Double.parseDouble(parts[0]));
 		} else {
-			sticklidx = -1;
-			stickridx = -1;
+			return new StickPosition(Double.parseDouble(stickData));
 		}
+	}
 
-		int numButtons;
-
-		if (sticklidx != -1) {
-			numButtons = sticklidx - 1;
-		} else if (stickridx != -1) {
-			numButtons = stickridx - 1;
-		} else {
-			numButtons = len - 1;
-		}
-
-		InputLine curLine = new InputLine();
-
-		for (int i = 1; i <= numButtons; i++) {
-			if (!components[i].isEmpty()) {
-				Collections.addAll(curLine.buttons, readCovertButton(components[i]));
-			}
-		}
-		if (radialStick) {
-			if (!LhasR && sticklidx != -1) {
-				String stickL = components[sticklidx].split("\\(")[1].split("\\)")[0].replace(" ", "");
-				curLine.setStickL(new StickPosition(Double.parseDouble(stickL)));
-			} else if (sticklidx != -1) {
-				String[] stickL = components[sticklidx].split("\\(")[1].split("\\)")[0].replace(" ", "").split(";");
-				curLine.setStickL(new StickPosition(Float.parseFloat(stickL[1]), Double.parseDouble(stickL[0])));
-			}
-			if (!RhasR && stickridx != -1) {
-				String stickR = components[stickridx].split("\\(")[1].split("\\)")[0].replace(" ", "");
-				curLine.setStickR(new StickPosition(Double.parseDouble(stickR)));
-			} else if (stickridx != -1) {
-				String[] stickR = components[stickridx].split("\\(")[1].split("\\)")[0].replace(" ", "").split(";");
-				curLine.setStickR(new StickPosition(Float.parseFloat(stickR[1]), Double.parseDouble(stickR[0])));
-			}
-
-		} else {
-			if (sticklidx != -1) {
-				String[] stickL = components[sticklidx].split("\\(")[1].split("\\)")[0].replace(" ", "").split(";");
-				curLine.setStickL(new StickPosition(Integer.parseInt(stickL[0]), Integer.parseInt(stickL[1])));
-			}
-
-			if (stickridx != -1) {
-				String[] stickR = components[stickridx].split("\\(")[1].split("\\)")[0].replace(" ", "").split(";");
-				curLine.setStickR(new StickPosition(Integer.parseInt(stickR[0]), Integer.parseInt(stickR[1])));
-			}
-		}
-		return curLine;
+	private static StickPosition parseCartesianStick(String stickData) {
+		String[] parts = stickData.split(";");
+		return new StickPosition(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]));
 	}
 
 	private static Button[] readCovertButton(String button) {
@@ -372,6 +294,7 @@ public class TSVTas {
 			return new Button[]{convertSingleButton(button)};
 		}
 	}
+
 	private static Button convertSingleButton(String button) {
 		return switch (button.toLowerCase()) {
 			case "m" -> Button.KEY_M;
@@ -403,7 +326,7 @@ public class TSVTas {
 		};
 	}
 
-	public static int indexOf(String[] array, String element) {
+	private static int indexOf(String[] array, String element) {
 		if (array == null || element == null) {
 			return -1;
 		}

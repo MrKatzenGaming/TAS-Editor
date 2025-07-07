@@ -63,14 +63,14 @@ public class LineRightClickMenu extends JPopupMenu {
 			try {
 				scriptTab.getPianoRoll().paste();
 			} catch (IOException | UnsupportedFlavorException e) {
-				e.printStackTrace(); //TODO error handling
+				System.out.println("paste failed, probably because the clipboard is empty or contains unsupported data");//TODO proper handling
 			}
 		});
 		setListener(replaceOption, () -> {
 			try {
 				scriptTab.getPianoRoll().replace();
 			} catch (IOException | UnsupportedFlavorException e) {
-				e.printStackTrace(); //TODO error handling
+				System.out.println("replace failed, probably because the clipboard is empty or contains unsupported data");//TODO proper handling
 			}
 		});
 		show(invoker,(int)point.getX(),(int)point.getY());

@@ -7,8 +7,6 @@ import io.github.jadefalke2.stickRelatedClasses.StickPosition;
 import io.github.jadefalke2.util.*;
 
 import javax.swing.JOptionPane;
-import javax.swing.table.DefaultTableModel;
-import javax.xml.transform.sax.SAXResult;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -187,6 +185,15 @@ public class Script {
 
 	public String getName() {
 		return file == null ? "unnamed script" : file.getName();
+	}
+
+	public String getNameNoExtension() {
+		String name = getName();
+		int dotIndex = name.lastIndexOf('.');
+		if(dotIndex > 0) {
+			return name.substring(0, dotIndex);
+		}
+		return name; // no extension found, return full name
 	}
 
 	public boolean isDirty() {

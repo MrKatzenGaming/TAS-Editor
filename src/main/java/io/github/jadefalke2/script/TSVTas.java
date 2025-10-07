@@ -19,64 +19,41 @@ public class TSVTas {
     }
 
 	public static String write(Script script) {
-		InputLine[] inputLines = script.getLines().clone();
+		List<InputLine> inputLines = new ArrayList<>(List.of(deepCopyLines(script)));
 		StringBuilder sb = new StringBuilder();
-
-		for (int i = 0; i < inputLines.length; i++) {
-			// Move special buttons from the next frame to the current frame
-			if (i < inputLines.length - 1) {
-				EnumSet<Button> currentButtons = inputLines[i].buttons;
-				EnumSet<Button> nextButtons = inputLines[i + 1].buttons;
-				Button[] motionButtons = {
-					Button.KEY_MUU, Button.KEY_MDD, Button.KEY_MLL, Button.KEY_MRR,
-					Button.KEY_MU, Button.KEY_MD, Button.KEY_ML, Button.KEY_MR
-				};
-
-				for (Button button : motionButtons) {
-					if (nextButtons.contains(button)) {
-						currentButtons.add(button);
-						nextButtons.remove(button);
-					}
-				}
-			}
-
-			// Append the current line's data
-			sb.append(convertButtons(inputLines[i].getButtonsString())).append("\t")
-				.append(convertStick(inputLines[i].getStickL(), true)).append("\t")
-				.append(convertStick(inputLines[i].getStickR(), false)).append("\n");
-
-		}
-		int i = 0;
-		while (i < inputLines.length) {
-			InputLine curLine = inputLines[i];
-			InputLine prevLine = i-1 < 0 ? InputLine.getEmpty() : inputLines[i-1];
-			i = moveMotion(i, curLine, prevLine);
-		}
 
 		Settings settings = Settings.INSTANCE;
 
 		StringBuilder header = new StringBuilder();
-		if (settings.practiceStageName.get() != null && !settings.practiceStageName.get().isEmpty() && !settings.practiceStageName.get().equals("None")) {
-			header.append("$stage = ").append(settings.practiceStageName.get()).append("\n");
-			header.append("$entr = ").append(settings.practiceEntranceName.get()).append("\n");
-			header.append("$scen = ").append(settings.practiceScenarioNo.get()).append("\n");
-		}
-		if (settings.startPositionX.get() != 0.0 && settings.startPositionY.get() != 0.0 && settings.startPositionZ.get() != 0.0) {
-			header.append("$pos = (").append(settings.startPositionX.get()).append("; ").append(settings.startPositionY.get()).append("; ").append(settings.startPositionZ.get()).append(")\n");
+		{
+			if (settings.practiceStageName.get() != null && !settings.practiceStageName.get().isEmpty() && !settings.practiceStageName.get().equals("None")) {
+				header.append("$stage = ").append(settings.practiceStageName.get()).append("\n");
+				header.append("$entr = ").append(settings.practiceEntranceName.get()).append("\n");
+				header.append("$scen = ").append(settings.practiceScenarioNo.get()).append("\n");
+			}
+			if (settings.startPositionX.get() != 0.0 && settings.startPositionY.get() != 0.0 && settings.startPositionZ.get() != 0.0) {
+				header.append("$pos = (").append(settings.startPositionX.get()).append("; ").append(settings.startPositionY.get()).append("; ").append(settings.startPositionZ.get()).append(")\n");
+			}
+
+			if (settings.is2PMode.get()) {
+				header.append("$is2P = true\n");
+			}
+
+			header.append("//\tAuthor: ").append(settings.authorName.get()).append("\n");
 		}
 
-		if (settings.is2PMode.get()) {
-			header.append("$is2P = true\n");
-		}
-
-		header.append("//\tAuthor: ").append(settings.authorName.get()).append("\n");
-
-		String combined = combineDuplicateLines(sb.toString());
-		sb.delete(0, sb.length()); // Clear the StringBuilder before appending
 		sb.append(header);
-		sb.append(combined);
+
+		for (InputLine line : inputLines) {
+			// Append the current line's data
+			sb.append(line.getDuration()).append("\t")
+				.append(convertButtons(line.getButtonsString())).append("\t")
+				.append(convertStick(line.getStickL(), true)).append("\t")
+				.append(convertStick(line.getStickR(), false)).append("\n");
+		}
 
 		return sb.toString();
+
 	}
 
 	public static Script read(File file) throws IOException {
@@ -94,31 +71,24 @@ public class TSVTas {
 				continue;
 			}
 
-			InputLine currentInputLine = readLine(line);
-			int duration = Integer.parseInt(line.split("\t")[0]);
+			InputLine curLine = readLine(line);
+			InputLine curLineDur1 = curLine.clone();
+			curLineDur1.setDuration(1);
+
 
 			if (line.contains("/")) {
 				// Alternate buttons for the given duration
 				String[] buttons = line.split("\t")[1].split("/");
-				for (int j = 0; j < duration; j++) {
-					InputLine alternateLine = currentInputLine.clone();
+				for (int j = 0; j < curLine.getDuration(); j++) {
+					InputLine alternateLine = curLineDur1.clone();
 					alternateLine.buttons.clear();
 					alternateLine.buttons.add(Button.valueOf("KEY_" + buttons[j % buttons.length].toUpperCase()));
 					inputLines.add(alternateLine);
 				}
 			} else {
 				// Add the same line for the given duration
-				for (int j = 0; j < duration; j++) {
-					inputLines.add(currentInputLine.clone());
-				}
+				inputLines.add(curLine.clone());
 			}
-		}
-
-		int i = 0;
-		while (i < inputLines.size()) {
-			InputLine curLine = inputLines.get(i);
-			InputLine prevLine = i - 1 < 0 ? InputLine.getEmpty() : inputLines.get(i - 1);
-			i = moveMotion(i, curLine, prevLine);
 		}
 
 		return new Script(inputLines.toArray(new InputLine[0]), 0);
@@ -136,6 +106,8 @@ public class TSVTas {
 		boolean[] hasRadius = {false, false}; // Left, Right
 		boolean isPolarStrick = false;
 		int numButtons;
+
+		curLine.setDuration(Integer.parseInt(components[0]));
 
 
 		if (componentsString.contains("lsx(") || componentsString.contains("rsx(")) {
@@ -177,49 +149,15 @@ public class TSVTas {
 		return curLine;
 	}
 
-	private static String combineDuplicateLines(String input) {
-		String[] lines = input.split("\n");
-		StringBuilder result = new StringBuilder();
+	private static InputLine[] deepCopyLines(Script script) {
+		InputLine[] originalLines = script.getLines();
+		InputLine[] copiedLines = new InputLine[originalLines.length];
 
-		String previousLine = null;
-		int count = 0;
-
-		for (String line : lines) {
-			if (line.equals(previousLine)) {
-				count++;
-			} else {
-				if (previousLine != null) {
-					result.append(count).append("\t").append(previousLine).append("\n");
-				}
-				previousLine = line;
-				count = 1;
-			}
+		for (int i = 0; i < originalLines.length; i++) {
+			copiedLines[i] = originalLines[i].clone(); // Assuming InputLine has a clone() method
 		}
 
-		// Append the last line
-		if (previousLine != null) {
-			result.append(count).append("\t").append(previousLine).append("\n");
-		}
-
-		return result.toString();
-	}
-
-	private static int moveMotion(int i, InputLine curLine, InputLine prevLine) {
-		EnumSet<Button> prevButtons = prevLine.buttons;
-		EnumSet<Button> curButtons = curLine.buttons;
-		Button[] motionButtons = {
-			Button.KEY_MUU, Button.KEY_MDD, Button.KEY_MLL, Button.KEY_MRR,
-			Button.KEY_MU, Button.KEY_MD, Button.KEY_ML, Button.KEY_MR
-		};
-		for (Button button : motionButtons) {
-			if (prevButtons.contains(button)) {
-				prevButtons.remove(button);
-				curButtons.add(button);
-				i++;
-			}
-		}
-		i++;
-		return i;
+		return copiedLines;
 	}
 
 	private static String convertButtons(String buttons) {
@@ -316,8 +254,8 @@ public class TSVTas {
 			case "zr" -> Button.KEY_ZR;
 			case "ls" -> Button.KEY_LSTICK;
 			case "rs" -> Button.KEY_RSTICK;
-			case "+" -> Button.KEY_PLUS;
-			case "-" -> Button.KEY_MINUS;
+			case "+", "plus" -> Button.KEY_PLUS;
+			case "-", "minus" -> Button.KEY_MINUS;
 			case "dp-u" -> Button.KEY_DUP;
 			case "dp-d" -> Button.KEY_DDOWN;
 			case "dp-l" -> Button.KEY_DLEFT;

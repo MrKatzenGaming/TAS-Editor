@@ -175,6 +175,13 @@ public class Script {
 		setDirty(true);
 	}
 
+	public void setDuration(int row, int duration) {
+		if(duration < 0) duration = 0;
+		if(inputLines.get(row).getDuration() == duration) return;
+		inputLines.get(row).setDuration(duration);
+		setDirty(true);
+	}
+
 	public void setStickPos(int row, JoystickPanel.StickType stickType, StickPosition position) {
 		if(stickType == JoystickPanel.StickType.L_STICK)
 			inputLines.get(row).setStickL(position);

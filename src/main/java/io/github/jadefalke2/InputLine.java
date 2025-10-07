@@ -2,11 +2,12 @@ package io.github.jadefalke2;
 
 import io.github.jadefalke2.stickRelatedClasses.StickPosition;
 import io.github.jadefalke2.util.Button;
-import io.github.jadefalke2.util.CorruptedScriptException;
 
 import java.util.EnumSet;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import static io.github.jadefalke2.util.Util.getFixedColumnCount;
 
 public class InputLine {
 
@@ -15,6 +16,7 @@ public class InputLine {
 
 	// the stick positions
 	private StickPosition stickL, stickR;
+	private Integer duration; //in frames, default 1
 
 
 	// Contructors
@@ -22,9 +24,11 @@ public class InputLine {
 	public InputLine() {
 		stickL = new StickPosition(0d,0d);
 		stickR = new StickPosition(0d,0d);
+		duration = 1;
 	}
 
-	public InputLine(EnumSet<Button> buttons, StickPosition stickL, StickPosition stickR) {
+	public InputLine(Integer duration,EnumSet<Button> buttons, StickPosition stickL, StickPosition stickR) {
+		this.duration = duration;
 		this.buttons = buttons;
 		this.stickL = stickL;
 		this.stickR = stickR;
@@ -57,13 +61,19 @@ public class InputLine {
 	 * @return the Object array
 	 */
 	public Object[] getArray (int frame){
-		Object[] tmp = new Object[3+Button.values().length];
+		Object[] tmp = new Object[getFixedColumnCount()+Button.values().length];
 		tmp[0] = frame;
-		tmp[1] = stickL.toCartString();
-		tmp[2] = stickR.toCartString();
+		if (getFixedColumnCount()==4){
+			tmp[1] = duration;
+			tmp[2] = stickL.toCartString();
+			tmp[3] = stickR.toCartString();
+		} else {
+			tmp[1] = stickL.toCartString();
+			tmp[2] = stickR.toCartString();
+		}
 
 		for (int i=0;i<Button.values().length;i++) {
-			tmp[i + 3] = buttons.contains(Button.values()[i]) ? Button.values()[i].toString() : "";
+			tmp[i + getFixedColumnCount()] = buttons.contains(Button.values()[i]) ? Button.values()[i].toString() : "";
 		}
 		return tmp;
 	}
@@ -86,12 +96,21 @@ public class InputLine {
 		return stickR;
 	}
 
+	public Integer getDuration() {
+		return duration;
+	}
+
 	public void setStickL(StickPosition stickL) {
 		this.stickL = stickL;
 	}
 
 	public void setStickR(StickPosition stickR) {
 		this.stickR = stickR;
+	}
+
+	public void setDuration(Integer duration) {
+		if(duration < 1) return;
+		this.duration = duration;
 	}
 
 	public String getButtonsString() {
@@ -109,6 +128,7 @@ public class InputLine {
 	public InputLine clone(){
 		InputLine newLine = new InputLine();
 		newLine.buttons = buttons.clone();
+		newLine.duration = duration;
 		newLine.stickL = stickL.clone();
 		newLine.stickR = stickR.clone();
 		return newLine;

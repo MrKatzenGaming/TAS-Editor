@@ -62,4 +62,12 @@ public class Util {
 		}
 		return result;
 	}
+
+
+	public static int getFixedColumnCount() {
+		return switch (Settings.INSTANCE.defaultScriptFormat.get()) {
+			case STAS, nxTAS -> 3;  // frame, left stick, right stick
+			case TSVTAS -> 4;  // frame, duration, left stick, right stick
+		};
+	}
 }

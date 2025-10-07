@@ -2,11 +2,14 @@ package io.github.jadefalke2.util;
 
 import io.github.jadefalke2.actions.Action;
 import io.github.jadefalke2.actions.ButtonAction;
+import io.github.jadefalke2.actions.DurationAction;
 import io.github.jadefalke2.components.PianoRoll;
 import io.github.jadefalke2.components.ScriptTab;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+
+import static io.github.jadefalke2.util.Util.getFixedColumnCount;
 
 public class InputDrawMouseListener extends MouseAdapter {
 
@@ -110,8 +113,13 @@ public class InputDrawMouseListener extends MouseAdapter {
 		if(action != null) scriptTab.previewAction(action);
 	}
 	private Action getAction() {
-		if(drawingCol == -1 || startRow == -1 || endRow == -1 || drawingCol < 3) return null;
-		return new ButtonAction(table.getScript(), Button.values()[drawingCol-3], mode == Mode.ADDING, Math.min(startRow, endRow), Math.max(startRow, endRow));
+//		System.out.println("Action from "+Math.min(startRow, endRow)+" to "+Math.max(startRow, endRow)+" on col "+drawingCol);
+		if (drawingCol == -1 || startRow == -1 || endRow == -1) return null;
+
+		if (drawingCol == 1) return new DurationAction(table.getScript(),startRow);
+		if( drawingCol < getFixedColumnCount()) return null;
+
+		return new ButtonAction(table.getScript(), Button.values()[drawingCol-getFixedColumnCount()], mode == Mode.ADDING, Math.min(startRow, endRow), Math.max(startRow, endRow));
 	}
 
 

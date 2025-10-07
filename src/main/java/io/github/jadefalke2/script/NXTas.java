@@ -93,7 +93,7 @@ public class NXTas {
 			StickPosition stickL = new StickPosition(components[2]);
 			StickPosition stickR = new StickPosition(components[3]);
 
-			return new InputLine(buttonSet, stickL, stickR);
+			return new InputLine(1,buttonSet, stickL, stickR);
 		} catch (Exception e) {
 			throw new CorruptedScriptException("Script corrupted", frame, e);
 		}

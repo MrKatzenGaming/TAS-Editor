@@ -4,6 +4,10 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.table.AbstractTableModel;
 import io.github.jadefalke2.Script;
 
+import java.util.stream.IntStream;
+
+import static io.github.jadefalke2.util.Util.getFixedColumnCount;
+
 public class ScriptTableModel extends AbstractTableModel implements ScriptObserver {
 
 	private final Script script;
@@ -30,34 +34,34 @@ public class ScriptTableModel extends AbstractTableModel implements ScriptObserv
 
 	@Override
 	public int getColumnCount() {
-		return Button.values().length + 3;  // frame, left stick, right stick
+		return Button.values().length + getFixedColumnCount();  // frame, duration, left stick, right stick
 	}
+
 
 	@Override
 	public String getColumnName(int column) {
-		switch(column) {
-			case 0:
-				return "Frame";
-			case 1:
-				return "L-Stick";
-			case 2:
-				return "R-Stick";
-			default:
-				return Button.values()[column - 3].toString();
-		}
+		return switch (column) {
+			case 0 -> "Frame";
+			case 1 -> getFixedColumnCount() == 4 ? "Duration": "L-Stick";
+			case 2 -> getFixedColumnCount() == 4 ? "L-Stick": "R-Stick";
+			case 3 -> getFixedColumnCount() == 4 ? "R-Stick":Button.values()[column - 3].toString();
+			default -> Button.values()[column - 4].toString();
+		};
 	}
 
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		switch(columnIndex) {
-			case 0:
-				return rowIndex;
-			case 1:
-				return script.getLine(rowIndex).getStickL().toCartString();
-			case 2:
-				return script.getLine(rowIndex).getStickR().toCartString();
-			default:
-				return script.getLine(rowIndex).buttons.contains(Button.values()[columnIndex - 3]) ? Button.values()[columnIndex - 3].toString() : "";
-		}
+		return switch (columnIndex) {
+			case 0 -> getFixedColumnCount() == 4?
+						IntStream.range(0, rowIndex).map(i -> script.getLine(i).getDuration()).sum() : rowIndex;
+			case 1 ->  getFixedColumnCount() == 4 ?
+						script.getLine(rowIndex).getDuration(): script.getLine(rowIndex).getStickL().toCartString();
+			case 2 ->  getFixedColumnCount() == 4 ?
+						script.getLine(rowIndex).getStickL().toCartString(): script.getLine(rowIndex).getStickR().toCartString();
+			case 3 ->  getFixedColumnCount() == 4 ?
+						script.getLine(rowIndex).getStickR().toCartString(): script.getLine(rowIndex).buttons.contains(Button.values()[columnIndex - getFixedColumnCount()]) ? Button.values()[columnIndex - getFixedColumnCount()].toString() : "";
+			default ->
+				script.getLine(rowIndex).buttons.contains(Button.values()[columnIndex - getFixedColumnCount()]) ? Button.values()[columnIndex - getFixedColumnCount()].toString() : "";
+		};
 	}
 }

@@ -227,7 +227,7 @@ public class STas {
 				}
 			} else if(c instanceof ControllerCommand) {
 				ControllerCommand cc = (ControllerCommand) c;
-				inputLines.set(inputLines.size()-1, new InputLine(cc.buttons, cc.stickL, cc.stickR));
+					inputLines.set(inputLines.size()-1, new InputLine(1,cc.buttons, cc.stickL, cc.stickR));
 			} else {
 				throw new RuntimeException("Unknown command: " + c);
 			}

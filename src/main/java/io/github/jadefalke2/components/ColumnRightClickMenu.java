@@ -1,20 +1,14 @@
 package io.github.jadefalke2.components;
 
-import io.github.jadefalke2.InputLine;
-import io.github.jadefalke2.Script;
-import io.github.jadefalke2.actions.Action;
-import io.github.jadefalke2.actions.InsertEmptyLineAction;
-import io.github.jadefalke2.actions.LineAction;
 import io.github.jadefalke2.util.Button;
-
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.table.TableColumnModel;
 import java.awt.Component;
 import java.awt.Point;
-import java.awt.datatransfer.UnsupportedFlavorException;
-import java.io.IOException;
+
+
+import static io.github.jadefalke2.util.Util.getFixedColumnCount;
 
 public class ColumnRightClickMenu extends JPopupMenu {
 
@@ -22,13 +16,20 @@ public class ColumnRightClickMenu extends JPopupMenu {
 
 	public ColumnRightClickMenu(PianoRoll pianoRoll){
 		TableColumnModel model = pianoRoll.getColumnModel();
-		items = new JCheckBoxMenuItem[Button.values().length + 3];
+		items = new JCheckBoxMenuItem[Button.values().length + getFixedColumnCount()];
 
 		items[0] = new JCheckBoxMenuItem("Frame");
-		items[1] = new JCheckBoxMenuItem("L-Stick");
-		items[2] = new JCheckBoxMenuItem("R-Stick");
-		for(int i = 3; i < items.length; i++){
-			items[i] = new JCheckBoxMenuItem(Button.values()[i-3].toString());
+		if (getFixedColumnCount()==4) {
+			items[1] = new JCheckBoxMenuItem("Duration");
+			items[2] = new JCheckBoxMenuItem("L-Stick");
+			items[3] = new JCheckBoxMenuItem("R-Stick");
+		}
+		else {
+			items[1] = new JCheckBoxMenuItem("L-Stick");
+			items[2] = new JCheckBoxMenuItem("R-Stick");
+		}
+		for(int i = getFixedColumnCount(); i < items.length; i++){
+			items[i] = new JCheckBoxMenuItem(Button.values()[i-getFixedColumnCount()].toString());
 		}
 
 		for(int i=0; i<model.getColumnCount(); i++) {

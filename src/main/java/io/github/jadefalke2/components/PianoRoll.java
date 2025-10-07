@@ -14,7 +14,6 @@ import java.awt.Font;
 import java.awt.Point;
 import java.awt.Toolkit;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
@@ -23,6 +22,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.util.Arrays;
+
+import static io.github.jadefalke2.util.Util.getFixedColumnCount;
 
 public class PianoRoll extends JTable {
 
@@ -109,14 +110,23 @@ public class PianoRoll extends JTable {
 
 	public void adjustColumnWidth(){
 		// adjust the size of all columns
-
-		int[] columnsWidth = {
-			45,											   		                // frame number
-			85, 85,										  	                	// sticks
-			18, 18, 18, 18, 25, 25, 18, 18, 18, 18, 25, 25, 25, 25, 25, 25,	    // buttons
-			18, 25, 25, 25, 25, 30, 30, 30, 30 									// motion
+		int[] columnsWidth;
+	if (getFixedColumnCount() == 4) {
+		columnsWidth = new int[]{
+			45, 45,                                                                // frame number, duration
+			85, 85,                                                                // sticks
+			18, 18, 18, 18, 25, 25, 18, 18, 18, 18, 25, 25, 25, 25, 25, 25,        // buttons
+			18, 25, 25, 25, 25, 30, 30, 30, 30                                    // motion
 		};
-
+	}
+	else {
+		columnsWidth = new int[]{
+			45,                                                            // frame number
+			85, 85,                                                                // sticks
+			18, 18, 18, 18, 25, 25, 18, 18, 18, 18, 25, 25, 25, 25, 25, 25,        // buttons
+			18, 25, 25, 25, 25, 30, 30, 30, 30                                    // motion
+		};
+	}
 		for (int i = 0; i < columnsWidth.length && i < getColumnCount(); i++) {
 			getColumnModel().getColumn(i).setPreferredWidth(columnsWidth[i]);
 		}
@@ -185,9 +195,7 @@ public class PianoRoll extends JTable {
 	 * @return false
 	 */
 	@Override
-	public boolean isCellEditable(int row, int column) {
-		return false;
-	}
+	public boolean isCellEditable(int row, int column) {return false;}
 
 	public void copy() {
 		InputLine[] rows = getSelectedInputRows();

@@ -40,7 +40,7 @@ public class Settings {
 
 	public final ObservableProperty<File> tsvtaspath;
 
-	public final ObservableProperty<Boolean> is2PMode;
+	public final ObservableProperty<Integer> motionOffset;
 
 
 	private final Preferences backingPrefs;
@@ -69,7 +69,7 @@ public class Settings {
 
 		tsvtaspath = new ObservableProperty<>(new File(prefs.get("tsvtaspath", System.getProperty("user.dir"))));
 
-		is2PMode = new ObservableProperty<>(Boolean.parseBoolean(prefs.get("is2PMode", "false")));
+		motionOffset = new ObservableProperty<>((Integer.parseInt(prefs.get("motionOffset", "0"))));
 
 	}
 
@@ -91,7 +91,7 @@ public class Settings {
 		backingPrefs.put("startPositionY", startPositionY.get() + "");
 		backingPrefs.put("startPositionZ", startPositionZ.get() + "");
 		backingPrefs.put("tsvtaspath", tsvtaspath.get() + "");
-		backingPrefs.put("is2PMode", is2PMode.get() + "");
+		backingPrefs.put("motionOffset", motionOffset.get() + "");
 
 		backingPrefs.flush();
 	}

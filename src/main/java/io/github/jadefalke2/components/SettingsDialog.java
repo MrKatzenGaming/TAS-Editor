@@ -64,7 +64,7 @@ public class SettingsDialog extends JDialog {
 		addTitle("Lunakit - Mario Odyssey", mainPanel, c);
 		c.gridy++;
 
-		addCheckboxSetting("2P Mode", prefs.is2PMode.get(), prefs.is2PMode::set, mainPanel, c);
+		addSpinnerSetting("Motion Offset", prefs.motionOffset.get(), prefs.motionOffset::set, mainPanel, c, Integer.MIN_VALUE);
 		c.gridy++;
 
 		addTextFieldSetting("Stage", prefs.practiceStageName.get(), prefs.practiceStageName::set, mainPanel, c);
@@ -138,6 +138,18 @@ public class SettingsDialog extends JDialog {
 		JSpinner spinner = new JSpinner();
 		SpinnerNumberModel model = new SpinnerNumberModel();
 		model.setMinimum(0);
+		spinner.setModel(model);
+		spinner.setValue(defaultState);
+		spinner.addChangeListener((event) -> setter.accept((Integer)spinner.getValue()));
+		mainPanel.add(spinner, c);
+		c.gridx = 0;
+	}
+	private void addSpinnerSetting(String name, int defaultState, Consumer<Integer> setter, JPanel mainPanel, GridBagConstraints c, Integer min){
+		mainPanel.add(new JLabel(name), c);
+		c.gridx = 1;
+		JSpinner spinner = new JSpinner();
+		SpinnerNumberModel model = new SpinnerNumberModel();
+		model.setMinimum(min);
 		spinner.setModel(model);
 		spinner.setValue(defaultState);
 		spinner.addChangeListener((event) -> setter.accept((Integer)spinner.getValue()));

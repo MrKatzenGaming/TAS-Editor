@@ -35,8 +35,8 @@ public class TSVTas {
 				header.append("$pos = (").append(settings.startPositionX.get()).append("; ").append(settings.startPositionY.get()).append("; ").append(settings.startPositionZ.get()).append(")\n");
 			}
 
-			if (settings.is2PMode.get()) {
-				header.append("$is2P = true\n");
+			if (settings.motionOffset.get() != 0) {
+				header.append("$motionOffset = ").append(settings.motionOffset.get()).append("\n");
 			}
 
 			header.append("//\tAuthor: ").append(settings.authorName.get()).append("\n");

@@ -28,10 +28,16 @@ public class TSVTas {
 		{
 			if (settings.practiceStageName.get() != null && !settings.practiceStageName.get().isEmpty() && !settings.practiceStageName.get().equals("None")) {
 				header.append("$stage = ").append(settings.practiceStageName.get()).append("\n");
-				header.append("$entr = ").append(settings.practiceEntranceName.get()).append("\n");
-				header.append("$scen = ").append(settings.practiceScenarioNo.get()).append("\n");
+				if (settings.practiceScenarioNo.get() != -1) {
+					header.append("$scen = ").append(settings.practiceScenarioNo.get()).append("\n");
+				}
+				if(settings.practiceEntranceName.get() != null && !settings.practiceEntranceName.get().isEmpty() && !settings.practiceEntranceName.get().equals("None")) {
+					header.append("$entr = ").append(settings.practiceEntranceName.get()).append("\n");
+				}
 			}
-			if (settings.startPositionX.get() != 0.0 && settings.startPositionY.get() != 0.0 && settings.startPositionZ.get() != 0.0) {
+			
+			
+			if (settings.startPositionX.get() != 0.0 || settings.startPositionY.get() != 0.0 || settings.startPositionZ.get() != 0.0) {
 				header.append("$pos = (").append(settings.startPositionX.get()).append("; ").append(settings.startPositionY.get()).append("; ").append(settings.startPositionZ.get()).append(")\n");
 			}
 

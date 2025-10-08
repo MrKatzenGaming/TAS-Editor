@@ -142,6 +142,12 @@ public class MainEditorWindow extends JFrame {
 		Logger.log("opening settings");
 		new SettingsDialog(this).setVisible(true);
 	}
+	
+	public void openScriptSettings() {
+		Logger.log("opening script settings");
+		new ScriptSettingsDialog(this).setVisible(true);
+	}
+
 	public void newWindow() {
 		parent.newWindow();
 	}

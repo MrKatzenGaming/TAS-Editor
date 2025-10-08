@@ -28,19 +28,21 @@ public class Settings {
 	public final ObservableProperty<SmoothTransitionDialog.SmoothTransitionType> smoothTransitionType;
 	public final ObservableProperty<RedoKeybind> redoKeybind;
 	public final ObservableProperty<Format> defaultScriptFormat;
+	public final ObservableProperty<File> tsvtaspath;
+	// Script Specific
 	public final ObservableProperty<String> authorName;
+	public final ObservableProperty<Integer> motionOffset;
+
+	public final ObservableProperty<Boolean> is2PMode;
 
 	public final ObservableProperty<String> practiceStageName;
 	public final ObservableProperty<Integer> practiceScenarioNo;
 	public final ObservableProperty<String> practiceEntranceName;
 
-	public final ObservableProperty<Float> startPositionX;
-	public final ObservableProperty<Float> startPositionY;
-	public final ObservableProperty<Float> startPositionZ;
+	public final ObservableProperty<Double> startPositionX;
+	public final ObservableProperty<Double> startPositionY;
+	public final ObservableProperty<Double> startPositionZ;
 
-	public final ObservableProperty<File> tsvtaspath;
-
-	public final ObservableProperty<Integer> motionOffset;
 
 
 	private final Preferences backingPrefs;
@@ -57,20 +59,20 @@ public class Settings {
 		smoothTransitionType = new ObservableProperty<>(SmoothTransitionDialog.SmoothTransitionType.valueOf(prefs.get("smoothTransitionType", "ANGULAR_CLOSEST")));
 		redoKeybind = new ObservableProperty<>(RedoKeybind.valueOf(prefs.get("redoKeybind", "CTRL_SHIFT_Z")));
 		defaultScriptFormat = new ObservableProperty<>(Format.valueOf(prefs.get("defaultScriptFormat", "nxTAS")));
-		authorName = new ObservableProperty<>(prefs.get("authorName", ""));
-
-		practiceStageName = new ObservableProperty<>(prefs.get("practiceStage", "CityWorldHomeStage"));
-		practiceScenarioNo = new ObservableProperty<>(Integer.parseInt(prefs.get("practiceScenario", "1")));
-		practiceEntranceName = new ObservableProperty<>(prefs.get("practiceEntrance", "start"));
-
-		startPositionX = new ObservableProperty<>(Float.parseFloat(prefs.get("startPositionX", "0")));
-		startPositionY = new ObservableProperty<>(Float.parseFloat(prefs.get("startPositionY", "0")));
-		startPositionZ = new ObservableProperty<>(Float.parseFloat(prefs.get("startPositionZ", "0")));
-
 		tsvtaspath = new ObservableProperty<>(new File(prefs.get("tsvtaspath", System.getProperty("user.dir"))));
+		//Script Specific
+		authorName = new ObservableProperty<String>("");
+		motionOffset = new ObservableProperty<Integer>(0);
 
-		motionOffset = new ObservableProperty<>((Integer.parseInt(prefs.get("motionOffset", "0"))));
+		practiceStageName = new ObservableProperty<String>("");
+		practiceScenarioNo = new ObservableProperty<Integer>(-1);
+		practiceEntranceName = new ObservableProperty<String>("");
 
+		startPositionX = new ObservableProperty<Double>(0.);
+		startPositionY = new ObservableProperty<Double>(0.);
+		startPositionZ = new ObservableProperty<Double>(0.);
+
+		is2PMode = new ObservableProperty<Boolean>(false);
 	}
 
 	public void storeSettings() throws BackingStoreException {
@@ -83,15 +85,17 @@ public class Settings {
 		backingPrefs.put("smoothTransitionType", smoothTransitionType.get() + "");
 		backingPrefs.put("redoKeybind", redoKeybind.get() + "");
 		backingPrefs.put("defaultScriptFormat", defaultScriptFormat.get() + "");
-		backingPrefs.put("authorName", authorName.get());
-		backingPrefs.put("practiceStage", practiceStageName.get() + "");
-		backingPrefs.put("practiceScenario", practiceScenarioNo.get() + "");
-		backingPrefs.put("practiceEntrance", practiceEntranceName.get() + "");
-		backingPrefs.put("startPositionX", startPositionX.get() + "");
-		backingPrefs.put("startPositionY", startPositionY.get() + "");
-		backingPrefs.put("startPositionZ", startPositionZ.get() + "");
 		backingPrefs.put("tsvtaspath", tsvtaspath.get() + "");
-		backingPrefs.put("motionOffset", motionOffset.get() + "");
+
+		// backingPrefs.put("authorName", authorName.get());
+		// backingPrefs.put("practiceStage", practiceStageName.get() + "");
+		// backingPrefs.put("practiceScenario", practiceScenarioNo.get() + "");
+		// backingPrefs.put("practiceEntrance", practiceEntranceName.get() + "");
+		// backingPrefs.put("startPositionX", startPositionX.get() + "");
+		// backingPrefs.put("startPositionY", startPositionY.get() + "");
+		// backingPrefs.put("startPositionZ", startPositionZ.get() + "");
+		// backingPrefs.put("motionOffset", motionOffset.get() + "");
+		// backingPrefs.put("is2PMode", is2PMode.get() + "");
 
 		backingPrefs.flush();
 	}

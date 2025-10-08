@@ -35,6 +35,10 @@ public class TSVTas {
 				header.append("$pos = (").append(settings.startPositionX.get()).append("; ").append(settings.startPositionY.get()).append("; ").append(settings.startPositionZ.get()).append(")\n");
 			}
 
+			if (settings.is2PMode.get()) {
+				header.append("$is2P = true");
+			}
+
 			if (settings.motionOffset.get() != 0) {
 				header.append("$motionOffset = ").append(settings.motionOffset.get()).append("\n");
 			}
@@ -66,8 +70,46 @@ public class TSVTas {
 		List<InputLine> inputLines = new ArrayList<>();
 		String[] lines = script.split("\n");
 
+		Settings set = Settings.INSTANCE;
+		resetScriptSettings(set);
+
 		for (String line : lines) {
-			if (line.trim().isEmpty() || line.startsWith("$") || line.startsWith("//")) {
+			if (line.trim().isEmpty()) {
+				continue;
+			}
+
+			if (line.startsWith("$")) {
+				if (line.toLowerCase().contains("is2p") || line.toLowerCase().contains("is_two_player")) {
+					set.is2PMode.set(Boolean.parseBoolean(line.split("=")[1].trim()));
+				}
+				if (line.toLowerCase().contains("motion_offset")) {
+					set.motionOffset.set(Integer.parseInt(line.split("=")[1].trim()));
+				}
+				if (line.toLowerCase().contains("stage")) {
+					set.practiceStageName.set((line.split("=")[1].trim()));
+				}
+				if (line.toLowerCase().contains("entr") || line.toLowerCase().contains("entrance")) {
+					set.practiceEntranceName.set((line.split("=")[1].trim()));
+				}
+				if (line.toLowerCase().contains("scen") || line.toLowerCase().contains("scenario")) {
+					set.practiceScenarioNo.set(Integer.parseInt(line.split("=")[1].trim()));
+				}
+
+				if (line.toLowerCase().contains("pos") || line.toLowerCase().contains("position")) {
+					System.out.println(line);
+					String[] l = line.replace("(", "").replace(")", "").split("=")[1].split(";");
+					System.out.println(List.of(l));
+					set.startPositionX.set(Double.parseDouble(l[0]));
+					set.startPositionY.set(Double.parseDouble(l[1]));
+					set.startPositionZ.set(Double.parseDouble(l[2]));
+				}
+				continue;
+			}
+
+			if (line.startsWith("//")) {
+				if (line.toLowerCase().contains("author")) {
+					set.authorName.set(line.split(":")[1].trim());
+				}
 				continue;
 			}
 
@@ -92,6 +134,18 @@ public class TSVTas {
 		}
 
 		return new Script(inputLines.toArray(new InputLine[0]), 0);
+	}
+
+	private static void resetScriptSettings(Settings set) {
+		set.is2PMode.set(false);
+		set.motionOffset.set(0);
+		set.practiceStageName.set("");
+		set.practiceEntranceName.set("");
+		set.practiceScenarioNo.set(0);
+		set.startPositionX.set(0.);
+		set.startPositionY.set(0.);
+		set.startPositionZ.set(0.);
+		set.authorName.set("");
 	}
 
 	public static InputLine readLine(String full) {

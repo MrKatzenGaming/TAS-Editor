@@ -1,7 +1,5 @@
 package io.github.jadefalke2.components;
 
-import io.github.jadefalke2.script.Format;
-import io.github.jadefalke2.stickRelatedClasses.SmoothTransitionDialog;
 import io.github.jadefalke2.util.Settings;
 import io.github.jadefalke2.util.SimpleDocumentListener;
 
@@ -11,15 +9,14 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Window;
 import java.awt.event.ItemEvent;
-import java.io.File;
 import java.util.Arrays;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class SettingsDialog extends JDialog {
+public class ScriptSettingsDialog extends JDialog {
 
-	public SettingsDialog(Window owner){
-		super(owner, "Settings", ModalityType.APPLICATION_MODAL);
+	public ScriptSettingsDialog(Window owner){
+		super(owner, "Script Settings", ModalityType.APPLICATION_MODAL);
 
 		Settings prefs = Settings.INSTANCE;
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -34,28 +31,38 @@ public class SettingsDialog extends JDialog {
 		c.gridx = 0;
 		c.gridy = 0;
 
-		addCheckboxSetting("Dark Theme", prefs.darkTheme.get(), prefs.darkTheme::set, mainPanel, c);
+		addTextFieldSetting("Author name", prefs.authorName.get(), prefs.authorName::set, mainPanel, c);
 		c.gridy++;
 
-		addFileSelectionSetting("Directory", prefs.directory.get(), prefs.directory::set, mainPanel, c);
+		addSpinnerSetting("Motion Offset", prefs.motionOffset.get(), prefs.motionOffset::set, mainPanel, c, Integer.MIN_VALUE);
 		c.gridy++;
 
-		addSpinnerSetting("Show last stick positions", prefs.lastStickPositionCount.get(), prefs.lastStickPositionCount::set, mainPanel, c);
+		addSeperator(mainPanel, c);
 		c.gridy++;
 
-		addDropdownSetting("Default SmoothTransition-Type: ", prefs.smoothTransitionType.get(), prefs.smoothTransitionType::set, SmoothTransitionDialog.SmoothTransitionType.values(), Arrays.stream(SmoothTransitionDialog.SmoothTransitionType.values()).map(SmoothTransitionDialog.SmoothTransitionType::getName).toArray(String[]::new), mainPanel, c);
+		addCheckboxSetting("Is 2Player", prefs.is2PMode.get(), prefs.is2PMode::set, mainPanel, c);
 		c.gridy++;
 
-		addRadioButtonSetting("JoystickPanel Position: ", prefs.joystickPanelPosition.get(), prefs.joystickPanelPosition::set, Settings.JoystickPanelPosition.values(), new String[]{"Left", "Right", "Hidden"}, Settings.JoystickPanelPosition::valueOf, mainPanel, c);
+		addSeperator(mainPanel, c);
 		c.gridy++;
 
-		addRadioButtonSetting("Redo-Keybind: ", prefs.redoKeybind.get(), prefs.redoKeybind::set, Settings.RedoKeybind.values(), new String[]{"CTRL+SHIFT+Z", "CTRL+Y"}, Settings.RedoKeybind::valueOf, mainPanel, c);
+		addTextFieldSetting("Stage", prefs.practiceStageName.get(), prefs.practiceStageName::set, mainPanel, c);
 		c.gridy++;
 
-		addRadioButtonSetting("Default script format: ", prefs.defaultScriptFormat.get(), prefs.defaultScriptFormat::set, Format.values(), new String[]{"STAS (.stas)", "nxTAS (.txt)", "TSVTas (.tsv)"}, Format::valueOf, mainPanel, c);
+		addSpinnerSetting("Scenario", prefs.practiceScenarioNo.get(), prefs.practiceScenarioNo::set, mainPanel, c, -1);
 		c.gridy++;
-		
-		addFileSelectionSetting("TSV-TAS Path", prefs.tsvtaspath.get(), prefs.tsvtaspath::set, mainPanel, c);
+
+		addTextFieldSetting("Entrance", prefs.practiceEntranceName.get(), prefs.practiceEntranceName::set, mainPanel, c);
+		c.gridy++;
+
+		addSeperator(mainPanel, c);
+		c.gridy++;
+
+		addPosSpinnerSetting("Start Position X", prefs.startPositionX.get(), prefs.startPositionX::set, mainPanel, c);
+		c.gridy++;
+		addPosSpinnerSetting("Start Position Y", prefs.startPositionY.get(), prefs.startPositionY::set, mainPanel, c);
+		c.gridy++;
+		addPosSpinnerSetting("Start Position Z", prefs.startPositionZ.get(), prefs.startPositionZ::set, mainPanel, c);
 
 		add(mainPanel);
 		pack();
@@ -68,29 +75,6 @@ public class SettingsDialog extends JDialog {
 		mainPanel.add(new JSeparator(JSeparator.HORIZONTAL), c);
 		c.insets = new Insets(5,0,0,0);
 		c.gridwidth = 1;
-	}
-
-	private void addFileSelectionSetting (String name, File defaultState,Consumer<File> setter, JPanel mainPanel, GridBagConstraints c) {
-		mainPanel.add(new JLabel(name), c);
-		c.gridx = 1;
-		JButton openFileChooserButton = new JButton("open file chooser");
-
-		openFileChooserButton.addActionListener(e -> {
-			JFileChooser fileChooser = new JFileChooser();
-			fileChooser.setCurrentDirectory(defaultState);
-
-			fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-			fileChooser.setAcceptAllFileFilterUsed(false);
-
-			int option = fileChooser.showDialog(openFileChooserButton, "select");
-
-			if (option == JFileChooser.APPROVE_OPTION) {
-				setter.accept(fileChooser.getSelectedFile());
-			}
-		});
-
-		mainPanel.add(openFileChooserButton, c);
-		c.gridx = 0;
 	}
 
 	private void addCheckboxSetting(String name, boolean defaultState, Consumer<Boolean> setter, JPanel mainPanel, GridBagConstraints c){
@@ -112,6 +96,19 @@ public class SettingsDialog extends JDialog {
 		spinner.setModel(model);
 		spinner.setValue(defaultState);
 		spinner.addChangeListener((event) -> setter.accept((Integer)spinner.getValue()));
+		mainPanel.add(spinner, c);
+		c.gridx = 0;
+	}
+	private void addPosSpinnerSetting(String name, Double defaultState, Consumer<Double> setter, JPanel mainPanel, GridBagConstraints c){
+		mainPanel.add(new JLabel(name), c);
+		c.gridx = 1;
+		JSpinner spinner = new JSpinner();
+		SpinnerNumberModel model = new SpinnerNumberModel(0.,0,0, 0.1);
+		model.setMaximum(null);
+		model.setMinimum(null);
+		spinner.setModel(model);
+		spinner.setValue(defaultState);
+		spinner.addChangeListener((event) -> setter.accept((Double)spinner.getValue()));
 		mainPanel.add(spinner, c);
 		c.gridx = 0;
 	}

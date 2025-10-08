@@ -18,10 +18,10 @@ import java.net.URL;
 
 public class MainJMenuBar extends JMenuBar {
 
-	private static final int shortcut = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+	private static final int shortcut = Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx();
 
 	private JMenuItem newScript, newWindow, openScript, save, saveAs, saveCopy, exit;
-	private JMenuItem undo, redo, cut, copy, paste, replace, deleteLines, selectLines, addLine, addLines, settings;
+	private JMenuItem undo, redo, cut, copy, paste, replace, deleteLines, selectLines, addLine, addLines, settings, scriptSettings;
 	private JCheckBoxMenuItem darkTheme;
 	private JMenuItem discord, about;
 	private final MainEditorWindow mainEditorWindow;
@@ -177,6 +177,9 @@ public class MainJMenuBar extends JMenuBar {
 
 		settings = editJMenu.add("Settings");
 		settings.addActionListener(e -> mainEditorWindow.openSettings());
+
+		scriptSettings = editJMenu.add("Script Settings");
+		scriptSettings.addActionListener(e -> mainEditorWindow.openScriptSettings());
 
 		return editJMenu;
 	}

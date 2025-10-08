@@ -2,7 +2,6 @@ package io.github.jadefalke2.util;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Objects;

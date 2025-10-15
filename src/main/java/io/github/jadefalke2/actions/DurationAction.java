@@ -33,8 +33,6 @@ public class DurationAction implements Action{
 		}
 
 		script.setDuration(row, newDuration);
-
-
 	}
 
 	@Override
@@ -42,6 +40,7 @@ public class DurationAction implements Action{
 		script.setDuration(row, oldValue);
 	}
 
+	@Override
 	public void redo() {
 			script.setDuration(row, redoValue);
 	}

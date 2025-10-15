@@ -23,10 +23,6 @@ public class InsertEmptyLineAction implements Action {
 		}
 	}
 
-	public void redo() {
-		execute();
-	}
-
 	@Override
 	public void revert() {
 		for (int i = 0; i < amount; i++){

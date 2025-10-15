@@ -9,5 +9,7 @@ public interface Action {
 
 	void revert();
 
-	void redo();
+	default void redo() {
+		execute();
+	};
 }

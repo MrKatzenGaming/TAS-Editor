@@ -31,6 +31,10 @@ public class ButtonAction implements Action {
 		}
 	}
 
+	public void redo() {
+		execute();
+	}
+
 	@Override
 	public void revert() {
 		for(int i=start; i<=end; i++) {

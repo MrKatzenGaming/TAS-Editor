@@ -42,11 +42,11 @@ public class TSVTas {
 			}
 
 			if (settings.is2PMode.get()) {
-				header.append("$is2P = true");
+				header.append("$is2P = true\n");
 			}
 
 			if (settings.motionOffset.get() != 0) {
-				header.append("$motionOffset = ").append(settings.motionOffset.get()).append("\n");
+				header.append("$motion_offset = ").append(settings.motionOffset.get()).append("\n");
 			}
 
 			header.append("//\tAuthor: ").append(settings.authorName.get()).append("\n");

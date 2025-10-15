@@ -52,7 +52,7 @@ public class TabbedScriptsPane extends JTabbedPane {
 		ScriptTab activeTab = getActiveScriptTab();
 		if(activeTab != null) {
 			activeTab.updateUndoRedoEnabled();
-			lengthChangeListener.onChange(activeTab.getScript().getLines().length);
+			lengthChangeListener.onChange(activeTab.getScript().getLength());
 		}
 		else
 			mainEditorWindow.enableUndoRedo(false, false);

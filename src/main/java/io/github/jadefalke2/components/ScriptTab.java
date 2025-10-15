@@ -61,7 +61,7 @@ public class ScriptTab extends JPanel implements ScriptObserver {
 		mainEditorWindow.enableUndoRedo(false, false);
 
 		this.lengthChangeListener = listener;
-		listener.onChange(script.getLines().length, -1);
+		listener.onChange(script.getLength(), -1);
 
 		Settings.INSTANCE.joystickPanelPosition.attachListener(ignored -> refreshLayout());
 
@@ -161,7 +161,7 @@ public class ScriptTab extends JPanel implements ScriptObserver {
 		Action action = redoStack.pop();
 		Logger.log("redoing action: " + action);
 
-		action.execute();
+		action.redo();
 		undoStack.push(action);
 		updateUndoRedoEnabled();
 	}

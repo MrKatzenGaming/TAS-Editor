@@ -44,6 +44,10 @@ public class LineAction implements Action{
 
 	}
 
+	public void redo() {
+		execute();
+	}
+
 	@Override
 	public void revert() {
 		switch (type){

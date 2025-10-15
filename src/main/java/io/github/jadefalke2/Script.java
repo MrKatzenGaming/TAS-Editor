@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.stream.IntStream;
 
 public class Script {
 
@@ -140,6 +141,9 @@ public class Script {
 	public InputLine[] getLines(){
 		return inputLines.toArray(new InputLine[0]);
 	}
+
+	public int getLength() { return inputLines.stream().mapToInt(InputLine::getDuration).sum();}
+
 	public int getNumLines() { return inputLines.size(); }
 
 	public void replaceRow(int row, InputLine replacement) {
@@ -179,6 +183,7 @@ public class Script {
 		if(duration < 0) duration = 0;
 		if(inputLines.get(row).getDuration() == duration) return;
 		inputLines.get(row).setDuration(duration);
+		updateLength();
 		setDirty(true);
 	}
 
@@ -221,7 +226,7 @@ public class Script {
 	}
 
 	public void updateLength() {
-		int after = inputLines.size();
+		int after = inputLines.stream().mapToInt(InputLine::getDuration).sum();
 		observers.forEach(c -> c.onLengthChange(after));
 	}
 

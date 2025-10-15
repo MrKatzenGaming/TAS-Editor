@@ -7,7 +7,8 @@ import javax.swing.*;
 public class DurationAction implements Action{
 	private final Script script;
 	private final int row;
-	private int[] oldValues;
+	private int oldValue;
+	private int redoValue;
 	private int newDuration;
 
 	public DurationAction(Script script, int row) {
@@ -17,34 +18,36 @@ public class DurationAction implements Action{
 
 	@Override
 	public void execute() {
-		oldValues = new int[1];
-		for(int i=0; i<oldValues.length; i++) {
-			oldValues[i] = script.getLine(row+i).getDuration();
-		}
+
+		oldValue = script.getLine(row).getDuration();
+
 		int newDuration;
 		try {
 			//open popup to ask for duration
 			newDuration = Integer.parseInt(JOptionPane.showInputDialog("Enter new duration:"));
-			if (newDuration < 1) return; //invalid input
+			if (newDuration < 1) return;
+			redoValue = newDuration;
 			this.newDuration = newDuration;
 		} catch (NumberFormatException e) {
-			return; //invalid input
+			return;
 		}
-		//set new duration
-		for(int i=row; i<=row; i++) {
-			script.setDuration(i, newDuration);
-		}
+
+		script.setDuration(row, newDuration);
+
+
 	}
 
 	@Override
 	public void revert() {
-		for(int i=row; i<=row; i++) {
-			script.setDuration(i,oldValues[i-row]);
-		}
+		script.setDuration(row, oldValue);
+	}
+
+	public void redo() {
+			script.setDuration(row, redoValue);
 	}
 
 	@Override
 	public String toString() {
-		return "Duration Action, at frames: "+row+";" +newDuration;
+		return "Duration Action, at frames: "+row+"->" +newDuration;
 	}
 }

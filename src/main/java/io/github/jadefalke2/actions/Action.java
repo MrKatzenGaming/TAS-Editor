@@ -8,4 +8,6 @@ public interface Action {
 	void execute();
 
 	void revert();
+
+	void redo();
 }
